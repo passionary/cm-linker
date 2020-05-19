@@ -3,9 +3,21 @@
 <head>
 	<title>example</title>
 	<meta charset="utf-8">
+	<style>
+		p{
+			color: #000;
+		}
+	</style>
 </head>
 <body>
 	<h1>Hello</h1>
+	<template id="temp">		
+		<p>some</p>
+	</template>
+	<script>
+		let p = temp.content.querySelector('p').innerHTML = '1'		
+		document.querySelector('h1').append(temp.content.cloneNode(true))
+	</script>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 </body>
 </html>

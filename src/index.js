@@ -1,11 +1,18 @@
 const counts = {Watcher:0,Dep:0,Vnode:0,Component:0,GlobalApi:0}
 
+class GlobalApi
+{
+	static components = [
+		'menu', 'cart'
+	]
+}
+
 const Dom = {
 	create(tag){
-		document.createElement(tag)
+		return document.createElement(tag)
 	},
 	append(parent,node){
-		parent.appendChild(node)
+		return parent.appendChild(node)
 	},
 	remove(parent,child){
 		parent.removeChild(child)
@@ -23,6 +30,15 @@ const Dom = {
 		}
 		return node
 	}
+}
+
+const tParserFns = {
+	snode: new RegExp(`<[^>/]+>+`,'g'),
+	obsnode: new RegExp('(-if|-for|-bind)')
+}
+console.log(tParserFns.snode)
+const array = elem => {
+	return Array.from(elem)
 }
 
 const name = function (){
@@ -44,18 +60,25 @@ const reactivate = function (){
 	  }
 	})
 }
+function init(){	
+	const component = new Component({
+		data:{
+			number:1
+		},
+		template: '<div l-if="value" -bind="some"><p l-for="item in elems">{{number}}</p><span l-for="item in elems">{{some}}</span></div>',
+		methods:{
 
-class Vnode
-{
-	constructor(){
-		this.id = count(name.call(this))
-	}
+		},
+		hooks:{
+
+		}
+	})
 }
-
 class Watcher 
 {
-	constructor(){
+	constructor(data,cb){
 		this.id = count(name.call(this))
+
 		this.deps = []
 	}	
 	update(){
@@ -84,39 +107,143 @@ class Dep
 		}
 	}
 }
+function renderHelpers()
+{
+	const createElements = () => {
+
+	}
+	const updateElements = () => {
+
+	}
+	const createChildren = () => {
+
+	}
+	const buildView = () => {
+
+	}
+	return {
+		create: createElements,
+		update: updateElements,
+		children: createChildren,
+		buildView
+	}
+}
+
+class Vnode
+{
+	static patterns = {
+		creating:[Dom.create,Dom.style],
+		appearing:[Dom.create,Dom.style,Dom.remove],
+		observing:[Dom.create,Dom.style,Dom.remove,Dom.update,Dom.append]
+	}
+
+	constructor(temp = '',cb){
+
+		this.id = count(name.call(this))
+
+		if(typeof cb === 'string'){
+			return new Component(temp)
+		}
+
+		if(typeof cb === 'function'){
+			return cb()
+		}
+
+	}
+}
+
+class Render
+{
+	rules = {
+		directive: /\{\{(?<value>[\w]+)\}\}/g,
+		cicle: /<[\w]+\sl-for="([^"]+?)"/g,
+		link: /l-bind\:(?:value|style)="([^"]+?)"/g,
+		condition: /l-if="([^"]+?)"/g
+	}
+	constructor(name,template,children){
+		this.template = Dom.create('template')
+		console.log(array(template.matchAll(tParserFns.snode))
+			.filter(i => new RegExp(`^<(?!${GlobalApi.components.join('|')})`)
+				.test(i[0]))
+			.filter(i => tParserFns.obsnode
+				.test(i[0])))
+		this.view = this.defineView(name,template,children)
+	}
+	defineView(name,temp,children){
+		const components = GlobalApi.components || []		
+		
+		let foundedComponents = {}
+
+		for(let i=0;i<components.length;i++){
+			const comp = temp.matchAll(new RegExp(`${components[i].name}`,'g'))
+			if(comp) foundedComponents[components[i].name] = comp
+		}
+
+		const [rvals,cicles,links,conditions] = [
+			array(temp.matchAll(this.rules.directive)),
+			array(temp.matchAll(this.rules.cicle)),
+			array(temp.matchAll(this.rules.link)),
+			array(temp.matchAll(this.rules.condition)),
+		]
+		// const citems = cicles[0][1].split(' ')
+		// const [data,val] = [
+		// 	citems[2],
+		// 	citems[0]
+		// ]
+		// console.log(cicles[1][0].match(/<[^\s]+(?=\sl-for)/))
+		const linker = () => {
+			// const args = Array.from(arguments)
+
+			if(rvals.length && cicles.length || conditions.length || links.length) {
+				const renders = Vnode.patterns.observing
+			}else {
+				const renders = Vnode.patterns.creating
+			}
+
+			(function(){					
+
+				if(end) return this.template
+				new Vnode(linker.bind(this,name,this.template,children))
+
+			})()
+		}
+		return new Vnode(linker.bind(this,name,temp,children))
+
+		// console.log(rvals,cicles,links,conditions)		
+
+		// for(let i=0;i<rvals.length;i++){
+		// 	const val = rvals[i].groups.value
+		// 	const rule = new RegExp(`>+(?=\\s*\{\{${val}\\s*\}\})`,'g')
+		// 	const buffer = array(temp.matchAll(rule))
+
+		// 	const tag = buffer[0].index
+		// 	let j = tag
+		// 	while(j--) {
+		// 		if(temp[j] === '<') {
+		// 			let t = temp.slice(j,tag+1)				
+		// 			if(/[\s]/.test(t))
+		// 			console.log(t.match(/^<[\w]+(?=\s)/)[0] + t[t.length - 1])
+		// 			break
+		// 		}
+		// 	}
+		// }
+
+		this.view = temp
+	}
+}
 
 class Component
 {
 	constructor(obj){
 		this.id = count(name.call(this))
-		let {cname,data, methods, hooks, template} = obj
+		let {cname,data, methods, children, hooks, template} = obj
 		this.name = cname
-		new Watcher(data,this.render)
+		this._view = new Render(cname,template,children).view		
+		this._watcher = new Watcher(
+			data,
+			this.view
+		)
 	}
-	render(){
-
-	}
-}
-
-class GlobalApi
-{
-	static methods = {
-		
-	}
-}
-
-function init(){	
-	const component = new Component({
-		data:{
-
-		},
-		methods:{
-
-		},
-		hooks:{
-
-		}
-	})
 }
 
 init()
