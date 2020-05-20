@@ -15,8 +15,68 @@
 		<p>some</p>
 	</template>
 	<script>
-		let p = temp.content.querySelector('p').innerHTML = '1'		
-		document.querySelector('h1').append(temp.content.cloneNode(true))
+		let pointer = 0
+		let nodes = []
+		function defineNodes(temp)
+		{
+			let rules = {
+				tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
+				cTag: '(?<=\/)[\\w]+'
+			}
+
+			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
+			
+			let current = 0
+
+			function next(){			
+				current = nexts[pointer++]
+			}
+			let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))
+			let opens = []
+			let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))
+			let closes = []
+			let crtag = ''			
+			function back(){		
+				current = nexts[pointer - 2]
+				pointer--
+			}
+			while(current < temp.length && opens.length != sopens.length && closes.length != scloses.length){				
+				let str = temp.slice(current,nexts[pointer])
+				let tag = str.match(new RegExp(rules.tag))
+				let cTag = str.match(rules.cTag)
+				if(tag && tag[0] && !opens.find(i => i.id == pointer)){
+					crtag = {id:pointer,tag}
+					next()
+					continue
+				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0]){
+					opens.unshift({id:crtag.id,tag:crtag.tag})
+					closes.unshift({id:pointer,tag:cTag})
+					crtag = 'no'
+					next()
+					continue
+				}else if(crtag === 'no'){
+					back()
+					continue
+				}
+				next()
+			}
+			console.log(opens,closes)
+		}
+		defineNodes(`
+			<div l-if="value" -bind="some">
+				<p l-for="item in elems">
+					{{number}}
+					<p>new</p>
+				</p>
+				<span l-for="item in elems">
+					{{some}}
+					<ul>
+						<li>
+						</li>
+					</ul>
+				</span>
+			</div>
+			`)
 	</script>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 </body>

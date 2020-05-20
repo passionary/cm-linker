@@ -1,3 +1,45 @@
+/**
+<-------- old code ---------->
+// directives 
+
+const [rvals,cicles,links,conditions] = [
+	array(temp.matchAll(this.rules.directive)),
+	array(temp.matchAll(this.rules.cicle)),
+	array(temp.matchAll(this.rules.link)),
+	array(temp.matchAll(this.rules.condition)),
+]
+const citems = cicles[0][1].split(' ')
+const [data,val] = [
+	citems[2],
+	citems[0]
+]
+console.log(cicles[1][0].match(/<[^\s]+(?=\sl-for)/))
+
+// regular algorithm
+
+console.log(rvals,cicles,links,conditions)		
+
+for(let i=0;i<rvals.length;i++){
+	const val = rvals[i].groups.value
+	const rule = new RegExp(`>+(?=\\s*\{\{${val}\\s*\}\})`,'g')
+	const buffer = array(temp.matchAll(rule))
+
+	const tag = buffer[0].index
+	let j = tag
+	while(j--) {
+		if(temp[j] === '<') {
+			let t = temp.slice(j,tag+1)				
+			if(/[\s]/.test(t))
+			console.log(t.match(/^<[\w]+(?=\s)/)[0] + t[t.length - 1])
+			break
+		}
+	}
+}
+
+<-------- old code ---------->
+
+*/
+
 const counts = {Watcher:0,Dep:0,Vnode:0,Component:0,GlobalApi:0}
 
 class GlobalApi
@@ -55,17 +97,25 @@ const reactivate = function (){
 		get(target, prop){
 			Reflect.get(target, prop)
 		},
-	  set(target, prop, val) {		  	
+	  set(target, prop, val) {
 	    return Reflect.set(target, prop, val)
 	  }
 	})
 }
+
 function init(){	
 	const component = new Component({
+		cname:'test',
 		data:{
 			number:1
 		},
-		template: '<div l-if="value" -bind="some"><p l-for="item in elems">{{number}}</p><span l-for="item in elems">{{some}}</span></div>',
+		template: 
+			`<div l-if="value" -bind="some">
+				<p l-for="item in elems">{{number}}</p>
+				<span l-for="item in elems">{{some}}</span>
+			</div>
+			`
+		,
 		methods:{
 
 		},
@@ -137,17 +187,11 @@ class Vnode
 		observing:[Dom.create,Dom.style,Dom.remove,Dom.update,Dom.append]
 	}
 
-	constructor(temp = '',cb){
-
-		this.id = count(name.call(this))
-
-		if(typeof cb === 'string'){
-			return new Component(temp)
-		}
-
-		if(typeof cb === 'function'){
-			return cb()
-		}
+	constructor(cb,pointer){
+		this.id = count(name.call(this))		
+		pointer++
+		
+		return cb()
 
 	}
 }
@@ -169,8 +213,8 @@ class Render
 				.test(i[0])))
 		this.view = this.defineView(name,template,children)
 	}
-	defineView(name,temp,children){
-		const components = GlobalApi.components || []		
+	defineView(name,temp,pointer){
+		const components = GlobalApi.components || []
 		
 		let foundedComponents = {}
 
@@ -179,66 +223,33 @@ class Render
 			if(comp) foundedComponents[components[i].name] = comp
 		}
 
-		const [rvals,cicles,links,conditions] = [
-			array(temp.matchAll(this.rules.directive)),
-			array(temp.matchAll(this.rules.cicle)),
-			array(temp.matchAll(this.rules.link)),
-			array(temp.matchAll(this.rules.condition)),
-		]
-		// const citems = cicles[0][1].split(' ')
-		// const [data,val] = [
-		// 	citems[2],
-		// 	citems[0]
-		// ]
-		// console.log(cicles[1][0].match(/<[^\s]+(?=\sl-for)/))
-		const linker = () => {
-			// const args = Array.from(arguments)
+		const linker = (t) => {
+			// if(rvals.length && cicles.length || conditions.length || links.length) {
+			// 	const renders = Vnode.patterns.observing
+			// }else {
+			// 	const renders = Vnode.patterns.creating
+			// }			
 
-			if(rvals.length && cicles.length || conditions.length || links.length) {
-				const renders = Vnode.patterns.observing
-			}else {
-				const renders = Vnode.patterns.creating
-			}
 
-			(function(){					
+			if(!this.template[pointer]) return this.template
 
-				if(end) return this.template
-				new Vnode(linker.bind(this,name,this.template,children))
-
-			})()
+			new Vnode(linker.bind(null,this.template),pointer)
+			
 		}
-		return new Vnode(linker.bind(this,name,temp,children))
 
-		// console.log(rvals,cicles,links,conditions)		
-
-		// for(let i=0;i<rvals.length;i++){
-		// 	const val = rvals[i].groups.value
-		// 	const rule = new RegExp(`>+(?=\\s*\{\{${val}\\s*\}\})`,'g')
-		// 	const buffer = array(temp.matchAll(rule))
-
-		// 	const tag = buffer[0].index
-		// 	let j = tag
-		// 	while(j--) {
-		// 		if(temp[j] === '<') {
-		// 			let t = temp.slice(j,tag+1)				
-		// 			if(/[\s]/.test(t))
-		// 			console.log(t.match(/^<[\w]+(?=\s)/)[0] + t[t.length - 1])
-		// 			break
-		// 		}
-		// 	}
-		// }
-
-		this.view = temp
+		return new Vnode(linker.bind(null,this.template),pointer)
+		
 	}
 }
 
 class Component
 {
+	pointer = 0
 	constructor(obj){
 		this.id = count(name.call(this))
 		let {cname,data, methods, children, hooks, template} = obj
 		this.name = cname
-		this._view = new Render(cname,template,children).view		
+		this._view = new Render(cname,template,this.pointer).view		
 		this._watcher = new Watcher(
 			data,
 			this.view
