@@ -78,7 +78,7 @@ const tParserFns = {
 	snode: new RegExp(`<[^>/]+>+`,'g'),
 	obsnode: new RegExp('(-if|-for|-bind)')
 }
-console.log(tParserFns.snode)
+// console.log(tParserFns.snode)
 const array = elem => {
 	return Array.from(elem)
 }
@@ -206,11 +206,11 @@ class Render
 	}
 	constructor(name,template,children){
 		this.template = Dom.create('template')
-		console.log(array(template.matchAll(tParserFns.snode))
-			.filter(i => new RegExp(`^<(?!${GlobalApi.components.join('|')})`)
-				.test(i[0]))
-			.filter(i => tParserFns.obsnode
-				.test(i[0])))
+		// console.log(array(template.matchAll(tParserFns.snode))
+		// 	.filter(i => new RegExp(`^<(?!${GlobalApi.components.join('|')})`)
+		// 		.test(i[0]))
+		// 	.filter(i => tParserFns.obsnode
+		// 		.test(i[0])))
 		this.view = this.defineView(name,template,children)
 	}
 	defineView(name,temp,pointer){

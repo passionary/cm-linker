@@ -21,7 +21,8 @@
 		{
 			let rules = {
 				tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
-				cTag: '(?<=\/)[\\w]+'
+				cTag: '(?<=\/)[\\w]+',
+				inner: '(?<=\{\{\)[\\w]+(?=\}\})'
 			}
 
 			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
@@ -31,26 +32,48 @@
 			function next(){			
 				current = nexts[pointer++]
 			}
-			let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))
-			let opens = []
+			let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))			
 			let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))
-			let closes = []
-			let crtag = ''			
-			function back(){		
+			if(sopens.length != scloses.length) throw Error('invalid html in template')
+			let nodes = []
+			let crtag = ''
+			let iter = 0
+			function back(){
 				current = nexts[pointer - 2]
 				pointer--
 			}
-			while(current < temp.length && opens.length != sopens.length && closes.length != scloses.length){				
+			let inner
+			while(current < temp.length && nodes.length != sopens.length){
+				iter++
 				let str = temp.slice(current,nexts[pointer])
-				let tag = str.match(new RegExp(rules.tag))
+				let tag = str.match(new RegExp(rules.tag))				
 				let cTag = str.match(rules.cTag)
-				if(tag && tag[0] && !opens.find(i => i.id == pointer)){
+				if(tag && tag[0] && !nodes.find(i => i.tag[0] == pointer)){
 					crtag = {id:pointer,tag}
 					next()
 					continue
-				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0]){
-					opens.unshift({id:crtag.id,tag:crtag.tag})
-					closes.unshift({id:pointer,tag:cTag})
+				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){					
+					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
+						let parent = {
+							tag:temp.slice(nexts[crtag.id-2],nexts[crtag.id-1]).match(new RegExp(rules.tag)),
+							id:crtag-1
+						}
+						let child = {
+							tag:temp.slice(nexts[crtag.id],nexts[crtag.id+1]).match(new RegExp(rules.tag)),
+							id:crtag.id + 1
+						}
+						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],parent,child,inner})
+					}else{
+						let child = {
+							tag:temp.slice(nexts[crtag.id],nexts[crtag+1]).match(new RegExp(rules.tag)),
+							id:crtag.id + 1
+						}
+						let parent = {
+							tag:temp.slice(nexts[crtag.id-2],nexts[crtag.id-1]).match(new RegExp(rules.tag)),
+							id:crtag.id - 1
+						}
+						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],parent,child})
+					}
 					crtag = 'no'
 					next()
 					continue
@@ -60,23 +83,79 @@
 				}
 				next()
 			}
-			console.log(opens,closes)
+			return nodes
 		}
-		defineNodes(`
+		let ind = 0
+		let dom = ['','','','','','','','']
+		let checked = []
+		let ranges
+		let old
+		let lvl = 0
+		let res = true
+
+		function makeOutput(array)
+		{			
+			let range = (a,b) => (b.etag[0] - b.tag[0]) - (a.etag[0] - a.tag[0]);
+			ranges = array.map((i) => [i.tag[0],i.etag[0],i.etag[0] - i.tag[0]])			
+			console.log(ranges)
+			recursion(ranges[0])
+			console.log(dom)
+			// console.log(isMax(ranges[0],ranges))
+		}
+		/* -----Array-----
+
+				[1, 18, 17]   STEPS: 1) nearest: [1, 18, 17] - at the beginning
+				[14, 17, 3]					 2) nearest - [2, 6, 4] - at the beginning of max
+				[15, 16, 1]					 3) next - [3, 5, 2] - is into nearest
+				[7, 13, 6]					 4) next - [7, 13, 6] - out of nearest and after him
+				[10, 12, 2]					 5) nearest - [8, 9, 1] - into [7, 13, 6]
+				[8, 9, 1]						 6) next - [10, 12, 2] - into [7, 13, 6] after [8, 9, 1]
+				[2, 6, 4]						 7) next - [14, 17, 3] - after [7, 13, 6]
+				[3, 5, 2]						 8) nearest - [15, 16, 1] - into [14, 17, 3]
+
+			 -----Array-----
+		*/
+		const reset = () => {
+			ind = res ? 0 : ind			
+			return true
+		}
+		const noreset = () => {
+			res = !res
+			return true
+		}
+		function recursion(range){
+			
+		}
+		function min(int){
+			let min = int[0]
+
+			for(let i=0;i<int.length;i++){
+				if(int[i][2] < min[2]) min = int[i]
+			}
+			old = min
+			return min
+		}		
+		let array = defineNodes(`
 			<div l-if="value" -bind="some">
-				<p l-for="item in elems">
-					{{number}}
-					<p>new</p>
-				</p>
-				<span l-for="item in elems">
-					{{some}}
-					<ul>
-						<li>
-						</li>
-					</ul>
+				<h2 l-for="item in elems">					
+					<p>
+					{{text}}
+					</p>
+				</h2>				
+				<select name="" id="">
+					<option value="">
+					</option>
+					<option value="">
+					{{optiontext}}
+					</option>
+				</select>
+				<span l-for="item in elems">					
+					<span>						
+					</span>					
 				</span>
 			</div>
 			`)
+		makeOutput(array)
 	</script>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 </body>
