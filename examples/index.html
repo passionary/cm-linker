@@ -16,7 +16,30 @@
 	</template>
 	<script>
 		let pointer = 0
-		let nodes = []
+		const Dom = {
+			create(tag){
+				return document.createElement(tag)
+			},
+			append(parent,node){
+				return parent.appendChild(node)
+			},
+			remove(parent,child){
+				parent.removeChild(child)
+			},
+			update(node,val){
+				node.innerHTML = val
+			},
+			style(node){
+				const styles = Array.from(arguments).slice(1)
+				const rule = /([^:\s]{3,}):+\s?(\w+)/
+				for(let i=0;i<styles.length;i++){			
+					const s = styles[i].match(rule)[1]
+					const v = styles[i].match(rule)[2]
+					if(rule.test(styles[i])) node.style[s] = v			
+				}
+				return node
+			}
+		}
 		function defineNodes(temp)
 		{
 			let rules = {
@@ -75,15 +98,56 @@
 		let old
 		let lvl = ''
 		let res = true
+		function render(array)
+		{
+			let i = 0
+			let html = Dom.create('div')			
+			let buf
+			let down = false
+			while(i < array.length - 1){				
+				let e = array[i]
+				let en = array[i+1]
 
+				if(down && buf) {
+					if(array[buf][1] - e[1] == 1) {
+						e[0].node.appendChild(array[buf][0].node)
+						i = buf - 1
+						down = false
+						i++
+						continue
+					}
+
+					i--
+					continue
+				}
+
+				if(en[1] - e[1] == 1){										
+					e[0].node = Dom.create(e[0].tag[1][0])
+					en[0].node = Dom.create(en[0].tag[1][0])
+					e[0].node.appendChild(en[0].node)
+					html.appendChild(e[0].node)
+					i++
+					continue
+				}
+
+				if(en[1] - e[1] < 1){
+					en[0].node = Dom.create(en[0].tag[1][0])
+					buf = i + 1
+					down = true
+					continue
+				}
+
+				i++
+			}
+			return array
+		}
 		function makeOutput(array)
-		{			
+		{
 			let range = (a,b) => (b.etag[0] - b.tag[0]) - (a.etag[0] - a.tag[0]);
 			ranges = array.sort((a,b) => a.tag[0] - b.tag[0])
-			recursion(ranges)		
+			recursion(ranges)
 			console.log(ranges)
-			console.log(defineDom(ranges,dom))
-			// console.log(isMax(ranges[0],ranges))
+			return defineDom(ranges,dom)
 		}
 		/* -----Array-----
 
@@ -106,44 +170,16 @@
 					dom[id+1] = children.map(e => ranges.findIndex(el => el == e)).join(',')
 					recursion(children)
 				}
-			}
-			// if(children.length) {
-			// 	dom += '-'
-			// 	deleteFounded(children)
-			// 	recursion(children,0)
-			// }
-			// back(ranges,0)
+			}			
 		}
-		function defineDom(ranges,array){			
+		function defineDom(ranges,array){
 			let DOM = []
 			for(let i=0;i<array.length;i++){				
 				const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
 				DOM.push([ranges.find((e,index) => index == i),count])
 			}
 			return DOM
-		}
-		const detectInDom = c => {
-			let str = ''
-			for(let i=0;i<c;i++){
-				str += '-'
-			}
-			return str
-		}
-		function deleteFounded(array){
-			for(let i=0;i<array.length;i++){
-				let index
-				if(index = ranges.findIndex(i => i == array[i])) ranges.splice(index,1)
-			}
-		}
-		function min(int){
-			let min = int[0]
-
-			for(let i=0;i<int.length;i++){
-				if(int[i][2] < min[2]) min = int[i]
-			}
-			old = min
-			return min
-		}
+		}		
 
 		let array = defineNodes(`
 			<div l-if="value" -bind="some">
@@ -177,10 +213,10 @@
 						</li>
 					</ul>
 				</select>
-				<span l-for="item in elems">					
-					<span>			
+				<span l-for="item in elems">
+					<span>
 					<p>
-					</p>			
+					</p>
 					</span>					
 				</span>
 				<div>
@@ -189,7 +225,7 @@
 				</div>
 			</div>
 			`)
-		makeOutput(array)
+		console.log(render(makeOutput(array)))
 	</script>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 </body>
