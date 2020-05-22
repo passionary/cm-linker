@@ -79,12 +79,10 @@
 		function makeOutput(array)
 		{			
 			let range = (a,b) => (b.etag[0] - b.tag[0]) - (a.etag[0] - a.tag[0]);
-			ranges = array.map((i) => [i.tag[0],i.etag[0],i.etag[0] - i.tag[0]])
-				.sort((a,b) => a[0] - b[0])
-			recursion(ranges)
-			defineDom(dom)
+			ranges = array.sort((a,b) => a.tag[0] - b.tag[0])
+			recursion(ranges)		
 			console.log(ranges)
-			console.log(dom)
+			console.log(defineDom(ranges,dom))
 			// console.log(isMax(ranges[0],ranges))
 		}
 		/* -----Array-----
@@ -102,7 +100,7 @@
 		*/	
 		function recursion(rangs){
 			for(let i=0;i<rangs.length;i++){
-				let children = ranges.filter(e => e[0] > rangs[i][0] && e[1] < rangs[i][1])				
+				let children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])				
 				if(children.length){
 					let id = ranges.findIndex(e => e == rangs[i])
 					dom[id+1] = children.map(e => ranges.findIndex(el => el == e)).join(',')
@@ -116,13 +114,13 @@
 			// }
 			// back(ranges,0)
 		}
-		function defineDom(array){		
-			for(let i=0;i<array.length;i++){
-				let val = array[i]
-
+		function defineDom(ranges,array){			
+			let DOM = []
+			for(let i=0;i<array.length;i++){				
 				const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
-				console.log(i,detectInDom(count))
+				DOM.push([ranges.find((e,index) => index == i),count])
 			}
+			return DOM
 		}
 		const detectInDom = c => {
 			let str = ''
