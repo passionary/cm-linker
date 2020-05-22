@@ -54,25 +54,9 @@
 					continue
 				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){					
 					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
-						let parent = {
-							tag:temp.slice(nexts[crtag.id-2],nexts[crtag.id-1]).match(new RegExp(rules.tag)),
-							id:crtag-1
-						}
-						let child = {
-							tag:temp.slice(nexts[crtag.id],nexts[crtag.id+1]).match(new RegExp(rules.tag)),
-							id:crtag.id + 1
-						}
-						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],parent,child,inner})
-					}else{
-						let child = {
-							tag:temp.slice(nexts[crtag.id],nexts[crtag+1]).match(new RegExp(rules.tag)),
-							id:crtag.id + 1
-						}
-						let parent = {
-							tag:temp.slice(nexts[crtag.id-2],nexts[crtag.id-1]).match(new RegExp(rules.tag)),
-							id:crtag.id - 1
-						}
-						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],parent,child})
+						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],inner})
+					}else{						
+						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag]})
 					}
 					crtag = 'no'
 					next()
@@ -86,19 +70,20 @@
 			return nodes
 		}
 		let ind = 0
-		let dom = ['','','','','','','','']
-		let checked = []
+		let dom = []		
 		let ranges
 		let old
-		let lvl = 0
+		let lvl = ''
 		let res = true
 
 		function makeOutput(array)
 		{			
 			let range = (a,b) => (b.etag[0] - b.tag[0]) - (a.etag[0] - a.tag[0]);
-			ranges = array.map((i) => [i.tag[0],i.etag[0],i.etag[0] - i.tag[0]])			
+			ranges = array.map((i) => [i.tag[0],i.etag[0],i.etag[0] - i.tag[0]])
+				.sort((a,b) => a[0] - b[0])
+			recursion(ranges)
+			defineDom(dom)
 			console.log(ranges)
-			recursion(ranges[0])
 			console.log(dom)
 			// console.log(isMax(ranges[0],ranges))
 		}
@@ -114,17 +99,43 @@
 				[3, 5, 2]						 8) nearest - [15, 16, 1] - into [14, 17, 3]
 
 			 -----Array-----
-		*/
-		const reset = () => {
-			ind = res ? 0 : ind			
-			return true
+		*/	
+		function recursion(rangs){
+			for(let i=0;i<rangs.length;i++){
+				let children = ranges.filter(e => e[0] > rangs[i][0] && e[1] < rangs[i][1])				
+				if(children.length){
+					let id = ranges.findIndex(e => e == rangs[i])
+					dom[id+1] = children.map(e => ranges.findIndex(el => el == e)).join(',')
+					recursion(children)
+				}
+			}
+			// if(children.length) {
+			// 	dom += '-'
+			// 	deleteFounded(children)
+			// 	recursion(children,0)
+			// }
+			// back(ranges,0)
 		}
-		const noreset = () => {
-			res = !res
-			return true
+		function defineDom(array){		
+			for(let i=0;i<array.length;i++){
+				let val = array[i]
+
+				const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
+				console.log(i,detectInDom(count))
+			}
 		}
-		function recursion(range){
-			
+		const detectInDom = c => {
+			let str = ''
+			for(let i=0;i<c;i++){
+				str += '-'
+			}
+			return str
+		}
+		function deleteFounded(array){
+			for(let i=0;i<array.length;i++){
+				let index
+				if(index = ranges.findIndex(i => i == array[i])) ranges.splice(index,1)
+			}
 		}
 		function min(int){
 			let min = int[0]
@@ -134,25 +145,50 @@
 			}
 			old = min
 			return min
-		}		
+		}
+
 		let array = defineNodes(`
 			<div l-if="value" -bind="some">
 				<h2 l-for="item in elems">					
-					<p>
-					{{text}}
+					<p>	
+					<span>
+					<span>
+					</span>
+					</span>			
 					</p>
-				</h2>				
+				</h2>
 				<select name="" id="">
-					<option value="">
+					<option value="">						
 					</option>
 					<option value="">
-					{{optiontext}}
+						<p>
+							<p>
+								<p>
+								</p>
+							</p>
+						</p>
 					</option>
+					<ul>
+						<li>
+							<p>
+							</p>
+						</li>
+						<li>
+							<p>
+							</p>
+						</li>
+					</ul>
 				</select>
 				<span l-for="item in elems">					
-					<span>						
+					<span>			
+					<p>
+					</p>			
 					</span>					
 				</span>
+				<div>
+					<p>
+					</p>
+				</div>
 			</div>
 			`)
 		makeOutput(array)
