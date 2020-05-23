@@ -15,8 +15,8 @@
 		<p>some</p>
 	</template>
 	<script>
-		let pointer = 0		
-		const Dom = {
+		/* global variables */
+		const helpers = {
 			create(tag){
 				return document.createElement(tag)
 			},
@@ -39,17 +39,46 @@
 				}
 				return node
 			}
+		}		
+		let html = document.createElement('div')		
+		let dom = []
+		let ranges
+		let template = `
+			<div>
+				<span>
+					{{data}}
+				</span>			
+			</div>							
+			`		
+		let object = {
+			data: '1'
 		}
+		const proxy = new Proxy(object, {
+    	get(target, prop){
+    		return target[prop]
+    	},
+    	set(target, prop, val, receiver) {
+    		target[prop] = val
+    		html = main()
+    		return true
+    	}	
+		})
+		proxy.data = 'new'		
+		console.log(html)
+		proxy.data = 'test'		
+		console.log(html)
 		function defineNodes(temp)
 		{
 			let rules = {
 				tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
 				cTag: '(?<=\/)[\\w]+',
-				inner: '(?<=\{\{\)[\\w]+(?=\}\})'
+				inner: '(?<=\{\{\)[\\w]+(?=\}\})',
+				lfor: '(?=l-for=")[\w]+?(?=")',
+				innerText: '[^\{\}]+'
 			}
 
 			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
-			
+			let pointer = 0
 			let current = 0
 
 			function next(){			
@@ -59,13 +88,13 @@
 			let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))
 			if(sopens.length != scloses.length) throw Error('invalid html in template')
 			let nodes = []
-			let crtag = ''			
+			let crtag = ''
 			function back(){
 				current = nexts[pointer - 2]
 				pointer--
 			}
 			let inner
-			while(current < temp.length && nodes.length != sopens.length){				
+			while(current < temp.length && nodes.length != sopens.length){
 				let str = temp.slice(current,nexts[pointer])
 				let tag = str.match(new RegExp(rules.tag))				
 				let cTag = str.match(rules.cTag)
@@ -74,9 +103,9 @@
 					next()
 					continue
 				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){					
-					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
+					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
 						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],inner})
-					}else{						
+					}else{
 						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag]})
 					}
 					crtag = 'no'
@@ -89,18 +118,24 @@
 				next()
 			}
 			return nodes
-		}		
-		let dom = []		
-		let ranges		
+		}			
 		function render(array)
 		{
+			let html = helpers.create('div')
 			let i = 0
-			let html = document.createElement('div')
 			let buf
-			let down = false
-			while(i < array.length - 1){
+			let down = false			
+			while(i < array.length){
 				let e = array[i]
 				let en = array[i+1]
+				if(!en)	break
+				if(array.length == 1) {
+					e[0].node = helpers.create(e[0].tag[1][0])
+					if(e[0].inner) {
+						e[0].node.innerHTML = e[0].inner[0]
+					}
+					break
+				}
 
 				if(down && buf) {
 					if(array[buf][1] - e[1] == 1) {
@@ -114,27 +149,29 @@
 					continue
 				}
 
-				if(en[1] - e[1] == 1){			
-					e[0].node = e[0].node || Dom.create(e[0].tag[1][0])
-					en[0].node = en[0].node || Dom.create(en[0].tag[1][0])
-
-					e[0].node.appendChild(en[0].node)					
+				if(en[1] - e[1] == 1){					
+					e[0].node = e[0].node || helpers.create(e[0].tag[1][0])
+					en[0].node = en[0].node || helpers.create(en[0].tag[1][0])
+					if(en[0].inner) {
+						en[0].node.innerHTML = object[en[0].inner[0]]
+					}
+					e[0].node.appendChild(en[0].node)
 					i++
 					continue
 				}
 
 				if(en[1] - e[1] < 1 && en[1] != 0){
-					en[0].node = Dom.create(en[0].tag[1][0])
+					en[0].node = helpers.create(en[0].tag[1][0])
 					buf = i + 1
 					down = true
 					continue
 				}else if(en[1] == 0 && i > 0){
-					en[0].node = Dom.create(en[0].tag[1][0])
+					en[0].node = helpers.create(en[0].tag[1][0])
 				}
 
 				i++
 			}
-			array.filter(e => e[1] == 0).forEach(i => html.appendChild(i[0].node))
+			array.filter(e => e[1] == 0).forEach(i => html.appendChild(i[0].node))			
 			return html
 		}
 		function makeOutput(array)
@@ -160,7 +197,7 @@
 			for(let i=0;i<rangs.length;i++){
 				const id = ranges.findIndex(e => e == rangs[i])			
 				const children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])
-				if(children.length){					
+				if(children.length){
 					dom[id] = children.map(e => ranges.findIndex(el => el == e)).join(',')
 					recursion(children)
 				}else	dom[id] = ''				
@@ -173,44 +210,11 @@
 				DOM.push([ranges.find((e,index) => index == i),count])
 			}			
 			return DOM
+		}
+		function main()
+		{
+			return render(makeOutput(defineNodes(template)))
 		}		
-
-		let array = defineNodes(`
-			<div>
-				<ul>
-					<li>
-					</li>
-					<div>				
-						<p>
-						</p>
-					</div>
-				</ul>
-			</div>
-			<div>
-				<ul>
-					<li>
-					</li>
-					<div>
-						<span>
-						</span>				
-					</div>
-				</ul>
-			</div>
-			<div>
-				<ul>
-					<li>
-					</li>
-					<div>
-						<span>
-						</span>
-						<p>
-						</p>
-					</div>
-				</ul>
-			</div>
-			`)
-		const result = render(makeOutput(array))		
-		console.log(result)
 	</script>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 </body>
