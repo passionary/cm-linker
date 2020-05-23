@@ -45,35 +45,32 @@
 		let ranges
 		let template = `
 			<div>
-				<span>
+				<span l-for="data in tests">
 					{{data}}
 				</span>			
 			</div>							
 			`		
 		let object = {
-			data: '1'
+			data: '1',
+			tests:['hello','some','person!']
 		}
 		const proxy = new Proxy(object, {
     	get(target, prop){
     		return target[prop]
     	},
     	set(target, prop, val, receiver) {
-    		target[prop] = val
+    		target[prop] = val    		
     		html = main()
     		return true
     	}	
-		})
-		proxy.data = 'new'		
-		console.log(html)
-		proxy.data = 'test'		
-		console.log(html)
+		})		
 		function defineNodes(temp)
 		{
 			let rules = {
 				tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
 				cTag: '(?<=\/)[\\w]+',
 				inner: '(?<=\{\{\)[\\w]+(?=\}\})',
-				lfor: '(?=l-for=")[\w]+?(?=")',
+				lfor: '(?<=for=")[^"]+(?=")',
 				innerText: '[^\{\}]+'
 			}
 
@@ -102,12 +99,20 @@
 					crtag = {id:pointer,tag}
 					next()
 					continue
-				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){					
-					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
-						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag],inner})
-					}else{
-						nodes.unshift({tag:[crtag.id,crtag.tag],etag:[pointer,cTag]})
+				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){
+					const expr = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lfor)) || ['']
+					const forExp = expr[0]
+					const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
+					let obj = {
+						tag:[crtag.id,crtag.tag],
+						etag:[pointer,cTag],						
 					}
+					console.log(key,data)
+					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
+						obj.inner = inner
+					}
+					if(data) obj.fdata = [data,object[data].length]
+					nodes.unshift(obj)
 					crtag = 'no'
 					next()
 					continue
@@ -149,13 +154,21 @@
 					continue
 				}
 
-				if(en[1] - e[1] == 1){					
+				if(en[1] - e[1] == 1){
 					e[0].node = e[0].node || helpers.create(e[0].tag[1][0])
 					en[0].node = en[0].node || helpers.create(en[0].tag[1][0])
 					if(en[0].inner) {
 						en[0].node.innerHTML = object[en[0].inner[0]]
 					}
-					e[0].node.appendChild(en[0].node)
+					if(en[0].fdata) {					
+						for(let i=0;i<en[0].fdata[1];i++) {
+							let el = en[0].node.cloneNode(true)
+							el.innerHTML = object[en[0].fdata[0]][i]
+							e[0].node.appendChild(el)
+						}						
+					}else{
+						e[0].node.appendChild(en[0].node)
+					}					
 					i++
 					continue
 				}
