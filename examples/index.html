@@ -43,12 +43,19 @@
 		let html = document.createElement('div')		
 		let dom = []
 		let ranges
-		let template = `
-			<div>
-				<span l-for="data in tests">
-					{{data}}
-				</span>			
-			</div>							
+		let template = `			
+				<div>
+					<div>
+						<span>
+							{{data}}
+						</span>
+					</div>
+					<div l-for="key in tests">
+						<span>
+							{{some}}
+						</span>				
+					</div>
+				</div>
 			`		
 		let object = {
 			data: '1',
@@ -58,12 +65,14 @@
     	get(target, prop){
     		return target[prop]
     	},
-    	set(target, prop, val, receiver) {
+    	set(target, prop, val, receiver) {    		
     		target[prop] = val    		
-    		html = main()
+    		html = main()    		
     		return true
     	}	
-		})		
+		})
+		proxy.tests = [1,2,3]
+		console.log(html)
 		function defineNodes(temp)
 		{
 			let rules = {
@@ -106,8 +115,7 @@
 					let obj = {
 						tag:[crtag.id,crtag.tag],
 						etag:[pointer,cTag],						
-					}
-					console.log(key,data)
+					}					
 					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
 						obj.inner = inner
 					}
@@ -123,28 +131,34 @@
 				next()
 			}
 			return nodes
-		}			
+		}
+		const lfor = () => {
+
+		}
 		function render(array)
 		{
 			let html = helpers.create('div')
 			let i = 0
 			let buf
-			let down = false			
+			let down = false
 			while(i < array.length){
 				let e = array[i]
 				let en = array[i+1]
-				if(!en)	break
-				if(array.length == 1) {
-					e[0].node = helpers.create(e[0].tag[1][0])
-					if(e[0].inner) {
-						e[0].node.innerHTML = e[0].inner[0]
-					}
-					break
-				}
+				// if(array.length == 1) {
+				// 	e[0].node = helpers.create(e[0].tag[1][0])
+				// 	if(e[0].inner) {
+				// 		e[0].node.innerHTML = object[e[0].inner[0]]
+				// 	}
+				// 	break
+				// }
 
 				if(down && buf) {
 					if(array[buf][1] - e[1] == 1) {
-						e[0].node.appendChild(array[buf][0].node)
+						if(array[buf][0].nodes){
+							for(let node of array[buf][0].nodes){
+								e[0].node.appendChild(node)
+							}
+						}else e[0].node.appendChild(array[buf][0].node)
 						i = buf
 						down = false						
 						continue
@@ -153,28 +167,49 @@
 					i--
 					continue
 				}
-
+				if(array.length < 2)	{
+					if(e[0].fdata) {
+						e[0].nodes = []
+						for(let i=0;i<e[0].fdata[1];i++) {
+							let el = helpers.create(e[0].tag[1][0])
+							el.innerHTML = object[e[0].fdata[0]][i]
+							e[0].nodes.push(el)
+						}
+					}else {
+						let el = helpers.create(e[0].tag[1][0])
+						if(e[0].inner) el.innerHTML = object[e[0].inner]
+						e[0].node = el
+					}
+					break
+				}
+				if(!en) break
 				if(en[1] - e[1] == 1){
 					e[0].node = e[0].node || helpers.create(e[0].tag[1][0])
 					en[0].node = en[0].node || helpers.create(en[0].tag[1][0])
 					if(en[0].inner) {
 						en[0].node.innerHTML = object[en[0].inner[0]]
 					}
-					if(en[0].fdata) {					
+					if(en[0].fdata) {
 						for(let i=0;i<en[0].fdata[1];i++) {
-							let el = en[0].node.cloneNode(true)
+							let el = en[0].node ? en[0].node.cloneNode(true) : helpers.create(en[0].tag[1][0])
 							el.innerHTML = object[en[0].fdata[0]][i]
 							e[0].node.appendChild(el)
-						}						
-					}else{
-						e[0].node.appendChild(en[0].node)
-					}					
+						}
+					}else e[0].node.appendChild(en[0].node)
 					i++
 					continue
 				}
 
 				if(en[1] - e[1] < 1 && en[1] != 0){
-					en[0].node = helpers.create(en[0].tag[1][0])
+					en[0].node = en[0].node || helpers.create(en[0].tag[1][0])
+					en[0].nodes = []
+					if(en[0].fdata) {
+						for(let i=0;i<en[0].fdata[1];i++) {
+							let el = en[0].node ? en[0].node.cloneNode(true) : helpers.create(en[0].tag[1][0])
+							el.innerHTML = object[en[0].fdata[0]][i]
+							en[0].nodes.push(el)
+						}
+					}else en[0].node = en[0].node || helpers.create(en[0].tag[1][0])
 					buf = i + 1
 					down = true
 					continue
@@ -183,8 +218,13 @@
 				}
 
 				i++
-			}
-			array.filter(e => e[1] == 0).forEach(i => html.appendChild(i[0].node))			
+			}			
+			const funds = array.filter(e => e[1] == 0)
+			funds.forEach(i => {
+				if(i[0].nodes) i[0].nodes.forEach(e => html.appendChild(e))
+				else html.appendChild(i[0].node)
+			})
+			console.log(array)
 			return html
 		}
 		function makeOutput(array)
