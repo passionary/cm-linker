@@ -43,7 +43,17 @@
 		let html = document.createElement('div')		
 		let dom = []
 		let ranges
-		let template = `			
+		let template = `
+			<ul>
+				<li>					
+				</li>
+				<select name="" id="">
+					<option value="">
+					</option>
+					<option value="">
+					</option>
+				</select>
+			</ul>
 				<div l-for="v in tests">
 					<div>
 						<span>
@@ -61,7 +71,19 @@
 						<p>
 						</p>
 					</div>
-				</div>				
+				</div>
+				<ul>
+					<p>
+						<li>
+						</li>
+					</p>
+					<li>
+					<span>
+					<p>
+					</p>
+					</span>
+					</li>
+				</ul>
 			`
 		let object = {
 			data: '1',
@@ -168,7 +190,18 @@
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 					if(!pr && buf.length > 1) {
 						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])												
-						if(ch[2].length) ch[2].forEach(e => ch[0].node.append(e))
+						if(ch[2].length) {
+							if(ch[0].fdata){
+								ch[2].forEach(e => ch[0].node.append(e))
+								buf.nodes = []
+								for(let i=0;i<ch[0].fdata[1];i++){
+									const el = ch[0].node.cloneNode(true)
+									buf.nodes.push(el)
+								}
+							}else{
+								ch[2].forEach(e => ch[0].node.append(e))
+							}
+						}
 						if(parent) {
 							buf.parent = parent[parent.length - 1]
 							buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])							
@@ -190,7 +223,9 @@
 				}
 			}
 			buffer.filter(e => e[e.length - 1][1] == 0).forEach(el => {
-				html.appendChild(el[el.length - 1][0].node)
+				if(el.nodes){
+					el.nodes.forEach(node => html.append(node))
+				}else html.appendChild(el[el.length - 1][0].node)				
 			})
 			return html
 		}
