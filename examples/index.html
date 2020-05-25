@@ -45,45 +45,39 @@
 		let ranges
 		let template = `
 			<ul>
-				<li>					
+				<li>
 				</li>
 				<select name="" id="">
-					<option value="">
-					</option>
-					<option value="">
+					<option value="" l-for="d in tests">
 					</option>
 				</select>
 			</ul>
-				<div l-for="v in tests">
+			<div>
+				<div>
+					<span>
+						{{data}}
+					</span>
+				</div>
+				<div>
 					<div>
 						<span>
-							{{data}}
-						</span>
-					</div>
-					<div>
-						<div>
-							<span>
-							{{d}}
-							</span>				
-						</div>						
-					</div>
-					<div>
-						<p>
-						</p>
-					</div>
+						{{d}}
+						</span>				
+					</div>						
 				</div>
-				<ul>
+				<div l-for="g in tests">
 					<p>
-						<li>
+					</p>
+				</div>
+			</div>				
+			<span>
+				<p>
+					<ul>
+						<li l-for="a in tests">
 						</li>
-					</p>
-					<li>
-					<span>
-					<p>
-					</p>
-					</span>
-					</li>
-				</ul>
+					</ul>
+				</p>
+			</span>
 			`
 		let object = {
 			data: '1',
@@ -189,23 +183,32 @@
 					const ch = buf[i]
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 					if(!pr && buf.length > 1) {
-						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])												
-						if(ch[2].length) {
-							if(ch[0].fdata){
-								ch[2].forEach(e => ch[0].node.append(e))
-								buf.nodes = []
-								for(let i=0;i<ch[0].fdata[1];i++){
-									const el = ch[0].node.cloneNode(true)
-									buf.nodes.push(el)
+						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])								
+						if(ch[2].length) {							
+							ch[2].forEach(e => {								
+								if(Array.isArray(e)){									
+									e.forEach(n => ch[0].node.append(n))	
+								}else {									
+									ch[0].node.append(e)
 								}
-							}else{
-								ch[2].forEach(e => ch[0].node.append(e))
-							}
+							})							
+						}
+						if(ch[0].fdata && ch[1] == 0){							
+							buf.nodes = []
+							for(let i=0;i<ch[0].fdata[1];i++){								
+								buf.nodes.push(ch[0].node.cloneNode(true))
+							}							
 						}
 						if(parent) {
 							buf.parent = parent[parent.length - 1]
-							buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])							
-							buf.parent[2].push(ch[0].node)
+							buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])
+							let a = []
+							if(ch[0].fdata){
+								for(let i=0;i<ch[0].fdata[1];i++){
+									a.push(ch[0].node.cloneNode(true))
+								}
+								buf.parent[2].push(a)
+							}else buf.parent[2].push(ch[0].node)
 						}
 						break
 					}else if(buf.length <= 1){
@@ -218,7 +221,12 @@
 					if(ch[0].inner) el.innerHTML = object[ch[0].inner[0]] || '0'
 					ch[0].node = el
 					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
-					pr[0].node.appendChild(ch[0].node)
+					if(ch[0].fdata){						
+						for(let i=0;i<ch[0].fdata[1];i++){
+							const el = ch[0].node.cloneNode(true)
+							pr[0].node.appendChild(el)
+						}
+					}else pr[0].node.appendChild(ch[0].node)
 					i++
 				}
 			}
