@@ -43,24 +43,14 @@
 		let html = document.createElement('div')		
 		let dom = []
 		let ranges
-		let template = `
-			<ul>
-				<li>					
-				</li>
-				<select name="" id="">
-					<option value="">
-					</option>
-					<option value="">
-					</option>
-				</select>
-			</ul>
-				<div>
+		let template = `			
+				<div l-for="v in tests">
 					<div>
 						<span>
 							{{data}}
 						</span>
 					</div>
-					<div l-for="d in tests">
+					<div>
 						<div>
 							<span>
 							{{d}}
@@ -71,17 +61,7 @@
 						<p>
 						</p>
 					</div>
-				</div>
-				<ul>
-					<li>
-					</li>
-					<select name="" id="">
-						<option value="">
-						</option>
-						<option value="">
-						</option>
-					</select>
-				</ul>
+				</div>				
 			`
 		let object = {
 			data: '1',
@@ -180,16 +160,19 @@
 				buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 				array.splice(0,id+1)
 			}
+			buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])			
 			for(let buf of buffer){
 				let i = 0
 				while(true){
 					const ch = buf[i]
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 					if(!pr && buf.length > 1) {
-						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
+						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])												
+						if(ch[2].length) ch[2].forEach(e => ch[0].node.append(e))
 						if(parent) {
 							buf.parent = parent[parent.length - 1]
-							buf.parent[0].node.appendChild(ch[0].node)
+							buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])							
+							buf.parent[2].push(ch[0].node)
 						}
 						break
 					}else if(buf.length <= 1){
@@ -206,7 +189,9 @@
 					i++
 				}
 			}
-			console.log(buffer.filter(e => e[e.length - 1][1] == 0))
+			buffer.filter(e => e[e.length - 1][1] == 0).forEach(el => {
+				html.appendChild(el[el.length - 1][0].node)
+			})
 			return html
 		}
 		function makeOutput(array)
@@ -242,7 +227,7 @@
 			let DOM = []
 			for(let i=0;i<array.length;i++){				
 				const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
-				DOM.push([ranges.find((e,index) => index == i),count])
+				DOM.push([ranges.find((e,index) => index == i),count,[]])
 			}
 			return DOM
 		}
