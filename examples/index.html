@@ -53,20 +53,26 @@
 				</select>
 			</ul>
 			<div>
-				<div>
+				<div l-for="some in tests">					
+					<p>
+						{{some}}
+					</p>
 					<span>
 						{{data}}
 					</span>
 				</div>
 				<div>
 					<div>
-						<span>
-						{{d}}
+						<span>						
 						</span>				
 					</div>						
 				</div>
-				<div l-for="g in tests">
+				<div l-for="t in tests">
 					<p>
+						{{t}}
+					</p>
+					<p l-for="g in news">
+						{{g}}
 					</p>
 				</div>
 			</div>				
@@ -74,6 +80,10 @@
 				<p>
 					<ul>
 						<li l-for="a in tests">
+							<p l-for="m in tests">
+								<b l-for="g in tests">
+								</b>
+							</p>
 						</li>
 					</ul>
 				</p>
@@ -81,19 +91,20 @@
 			`
 		let object = {
 			data: '1',
-			tests:['hello','some','person!']
+			tests:['hello','some','person!'],
+			news:['hello','my','friend!']
 		}
 		const proxy = new Proxy(object, {
     	get(target, prop){
     		return target[prop]
     	},
     	set(target, prop, val, receiver) {    		
-    		target[prop] = val    		
-    		html = main()    		
+    		target[prop] = val 		
+    		html = main()
     		return true
     	}	
 		})
-		proxy.tests = [1,2,3]
+		proxy.tests = ['hello','some','person!']
 		console.log(html)
 		function defineNodes(temp)
 		{
@@ -124,8 +135,8 @@
 			let inner
 			while(current < temp.length && nodes.length != sopens.length){
 				let str = temp.slice(current,nexts[pointer])
-				let tag = str.match(new RegExp(rules.tag))				
-				let cTag = str.match(rules.cTag)
+				let tag = str.match(new RegExp(rules.tag))
+				let cTag = str.match(new RegExp(rules.cTag))
 				if(tag && tag[0] && !nodes.find(i => i.tag[0] == pointer)){
 					crtag = {id:pointer,tag}
 					next()
@@ -136,12 +147,12 @@
 					const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 					let obj = {
 						tag:[crtag.id,crtag.tag],
-						etag:[pointer,cTag],						
-					}					
+						etag:[pointer,cTag],
+					}
 					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
 						obj.inner = inner
 					}
-					if(data) obj.fdata = [data,object[data].length]
+					if(data && key) obj.fdata = [data,object[data].length,key]
 					nodes.unshift(obj)
 					crtag = 'no'
 					next()
@@ -154,12 +165,7 @@
 			}			
 			return nodes
 		}
-		const lfor = () => {
 
-		}
-		const findPr = (arr,lvl) => {
-
-		}
 		function render(array)
 		{
 			let html = helpers.create('div')
@@ -176,28 +182,28 @@
 				buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 				array.splice(0,id+1)
 			}
-			buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])			
+			buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])
 			for(let buf of buffer){
 				let i = 0
 				while(true){
 					const ch = buf[i]
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 					if(!pr && buf.length > 1) {
-						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])								
-						if(ch[2].length) {							
-							ch[2].forEach(e => {								
-								if(Array.isArray(e)){									
-									e.forEach(n => ch[0].node.append(n))	
-								}else {									
+						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
+						if(ch[2].length) {
+							ch[2].forEach(e => {
+								if(Array.isArray(e)){
+									e.forEach(n => ch[0].node.append(n))
+								}else {
 									ch[0].node.append(e)
 								}
-							})							
+							})
 						}
-						if(ch[0].fdata && ch[1] == 0){							
+						if(ch[0].fdata && ch[1] == 0){
 							buf.nodes = []
-							for(let i=0;i<ch[0].fdata[1];i++){								
+							for(let i=0;i<ch[0].fdata[1];i++){
 								buf.nodes.push(ch[0].node.cloneNode(true))
-							}							
+							}
 						}
 						if(parent) {
 							buf.parent = parent[parent.length - 1]
@@ -205,7 +211,10 @@
 							let a = []
 							if(ch[0].fdata){
 								for(let i=0;i<ch[0].fdata[1];i++){
-									a.push(ch[0].node.cloneNode(true))
+									const el = ch[0].node.cloneNode(true)
+									let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
+									child.innerHTML = object[ch[0].fdata[0]][i]
+									a.push(el)
 								}
 								buf.parent[2].push(a)
 							}else buf.parent[2].push(ch[0].node)
@@ -213,17 +222,22 @@
 						break
 					}else if(buf.length <= 1){
 						let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-						if(ch[0].inner) el.innerHTML = object[ch[0].inner[0]] || '0'
+						if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || '0'
 						ch[0].node = el
 					 	break
+					}					
+					let el = ch[0].node || helpers.create(ch[0].tag[1][0])					
+					if(ch[0].inner) {
+						el.setAttribute(`data-${ch[0].inner[0]}`,'')
+						el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || '0'
 					}
-					let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-					if(ch[0].inner) el.innerHTML = object[ch[0].inner[0]] || '0'
 					ch[0].node = el
 					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
 					if(ch[0].fdata){						
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
+							const child = el.querySelector(`[data-${ch[0].fdata[2]}`) || el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
+							if(child) child.innerHTML = object[ch[0].fdata[0]][i]							
 							pr[0].node.appendChild(el)
 						}
 					}else pr[0].node.appendChild(ch[0].node)
@@ -233,7 +247,7 @@
 			buffer.filter(e => e[e.length - 1][1] == 0).forEach(el => {
 				if(el.nodes){
 					el.nodes.forEach(node => html.append(node))
-				}else html.appendChild(el[el.length - 1][0].node)				
+				}else html.appendChild(el[el.length - 1][0].node)
 			})
 			return html
 		}
