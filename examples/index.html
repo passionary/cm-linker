@@ -229,7 +229,7 @@
 					let el = ch[0].node || helpers.create(ch[0].tag[1][0])					
 					if(ch[0].inner) {
 						el.setAttribute(`data-${ch[0].inner[0]}`,'')
-						el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || '0'
+						el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
 					}
 					ch[0].node = el
 					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
@@ -237,7 +237,7 @@
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
 							const child = el.querySelector(`[data-${ch[0].fdata[2]}`) || el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
-							if(child) child.innerHTML = object[ch[0].fdata[0]][i]							
+							if(child) child.innerHTML = object[ch[0].fdata[0]][i]
 							pr[0].node.appendChild(el)
 						}
 					}else pr[0].node.appendChild(ch[0].node)
