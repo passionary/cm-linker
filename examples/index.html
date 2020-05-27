@@ -40,26 +40,33 @@
 				return node
 			}
 		}		
-		let html = document.createElement('div')		
+		let html = document.createElement('div')
 		let dom = []
 		let ranges
 		let template = `
+		<p>
+		</p>
 			<div l-for="t in tests">
 				<p>
 					{{t}}
 				</p>
 				<p>
-					{{t}}								
+					{{t}}
 				</p>
 			</div>
+			<p>
+				{{t}}
+			</p>
+			<p>
+			</p>
 			<div l-for="new in news">
 				<p>
 					{{new}}
 				</p>
 				<p l-for="n in news">
-				{{n}}
+					{{n}}
 				</p>
-			</div>		
+			</div>
 			`
 		let object = {
 			data: 'someData',
@@ -147,15 +154,16 @@
 			let down = false
 			let buffer = []
 			while(array.length){
-				const id = array.findIndex((i,ind,arr) => arr[ind+1] && arr[ind+1][1] - i[1] < 0)
+				const id = array.findIndex((i,ind,arr) => arr[ind+1] && arr[ind+1][1] - i[1] < 0 || arr[ind+1] && arr[ind+1][1] == 0 && arr[ind][1] == 0)
 				if(id < 0) {
 					buffer.push(array.sort((a,b) => b[1]-a[1]))
 					break
-				}
+				}				
 				buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 				array.splice(0,id+1)
 			}
 			buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])
+			console.log(buffer)
 			for(let buf of buffer){
 				let i = 0
 				while(true){
@@ -175,10 +183,7 @@
 						if(ch[0].fdata && ch[1] == 0){
 							buf.nodes = []
 							for(let i=0;i<ch[0].fdata[1];i++){
-								const el = ch[0].node.cloneNode(true)
-								// let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
-								// if(child)	child.innerHTML = object[ch[0].fdata[0]][i]
-								// buf.nodes.push(el)
+								const el = ch[0].node.cloneNode(true)								
 								let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
 								child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
 								if(child.length || child) {
