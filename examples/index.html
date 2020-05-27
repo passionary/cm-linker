@@ -43,56 +43,44 @@
 		let html = document.createElement('div')		
 		let dom = []
 		let ranges
-		let template = `
-			<ul>
-				<li>
-				</li>
-				<select name="" id="">
-					<option value="" l-for="d in tests">
-					</option>
-				</select>
-			</ul>
-			<div>
-				<div l-for="some in tests">					
-					<p>
-						{{some}}
-					</p>
-					<span>
-						{{data}}
-					</span>
-				</div>
-				<div>
-					<div>
-						<span>						
-						</span>				
-					</div>						
-				</div>
+		let template = `			
+			<div>							
 				<div l-for="t in tests">
 					<p>
 						{{t}}
 					</p>
 					<p l-for="g in news">
-						{{g}}
+						<p l-for="o in other">
+							<p>
+								{{o}}
+							</p>
+							<ul l-for="test in tests">
+								<li l-for="new in news">
+									{{g}}
+								</li>
+							</ul>
+						</p>					
 					</p>
 				</div>
-			</div>				
-			<span>
-				<p>
-					<ul>
-						<li l-for="a in tests">
-							<p l-for="m in tests">
-								<b l-for="g in tests">
-								</b>
-							</p>
-						</li>
-					</ul>
-				</p>
-			</span>
+				<div l-for="some in other">
+					<p>										
+					</p>
+					<p l-for="s in tests">
+						<h2>
+							{{data}}
+						</h2>
+						<span l-for="n in news">
+							{{data}}
+						</span>
+					</p>
+				</div>
+			</div>			
 			`
 		let object = {
-			data: '1',
-			tests:['hello','some','person!'],
-			news:['hello','my','friend!']
+			data: 'someData',
+			tests:['test1','test2','test3!'],
+			news:['news1','news2','news3'],
+			other:['other1','other2!']
 		}
 		const proxy = new Proxy(object, {
     	get(target, prop){
@@ -104,7 +92,7 @@
     		return true
     	}	
 		})
-		proxy.tests = ['hello','some','person!']
+		proxy.tests = ['test1','test2','test3!']
 		console.log(html)
 		function defineNodes(temp)
 		{
@@ -211,9 +199,9 @@
 							let a = []
 							if(ch[0].fdata){
 								for(let i=0;i<ch[0].fdata[1];i++){
-									const el = ch[0].node.cloneNode(true)
+									const el = ch[0].node.cloneNode(true)									
 									let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
-									child.innerHTML = object[ch[0].fdata[0]][i]
+									if(child)	child.innerHTML = object[ch[0].fdata[0]][i]
 									a.push(el)
 								}
 								buf.parent[2].push(a)
@@ -222,7 +210,7 @@
 						break
 					}else if(buf.length <= 1){
 						let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-						if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || '0'
+						if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
 						ch[0].node = el
 					 	break
 					}					
@@ -233,11 +221,20 @@
 					}
 					ch[0].node = el
 					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
-					if(ch[0].fdata){						
+					if(ch[0].fdata){
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
-							const child = el.querySelector(`[data-${ch[0].fdata[2]}`) || el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
-							if(child) child.innerHTML = object[ch[0].fdata[0]][i]
+							let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+							child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
+							if(child.length || child) {
+								if(child.length){
+									for(let j=0;j<child.length; j++){
+										child[j].innerHTML = object[ch[0].fdata[0]][i]
+									}								
+								}else{
+									child.innerHTML = object[ch[0].fdata[0]][i]
+								}
+							}
 							pr[0].node.appendChild(el)
 						}
 					}else pr[0].node.appendChild(ch[0].node)
