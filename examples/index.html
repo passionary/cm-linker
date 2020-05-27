@@ -43,38 +43,23 @@
 		let html = document.createElement('div')		
 		let dom = []
 		let ranges
-		let template = `			
-			<div>							
-				<div l-for="t in tests">
-					<p>
-						{{t}}
-					</p>
-					<p l-for="g in news">
-						<p l-for="o in other">
-							<p>
-								{{o}}
-							</p>
-							<ul l-for="test in tests">
-								<li l-for="new in news">
-									{{g}}
-								</li>
-							</ul>
-						</p>					
-					</p>
-				</div>
-				<div l-for="some in other">
-					<p>										
-					</p>
-					<p l-for="s in tests">
-						<h2>
-							{{data}}
-						</h2>
-						<span l-for="n in news">
-							{{data}}
-						</span>
-					</p>
-				</div>
-			</div>			
+		let template = `
+			<div l-for="t in tests">
+				<p>
+					{{t}}
+				</p>
+				<p>
+					{{t}}								
+				</p>
+			</div>
+			<div l-for="new in news">
+				<p>
+					{{new}}
+				</p>
+				<p l-for="n in news">
+				{{n}}
+				</p>
+			</div>		
 			`
 		let object = {
 			data: 'someData',
@@ -190,7 +175,22 @@
 						if(ch[0].fdata && ch[1] == 0){
 							buf.nodes = []
 							for(let i=0;i<ch[0].fdata[1];i++){
-								buf.nodes.push(ch[0].node.cloneNode(true))
+								const el = ch[0].node.cloneNode(true)
+								// let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
+								// if(child)	child.innerHTML = object[ch[0].fdata[0]][i]
+								// buf.nodes.push(el)
+								let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+								child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
+								if(child.length || child) {
+									if(child.length){
+										for(let j=0;j<child.length; j++){
+											child[j].innerHTML = object[ch[0].fdata[0]][i]
+										}								
+									}else{
+										child.innerHTML = object[ch[0].fdata[0]][i]
+									}
+								}
+								buf.nodes.push(el)
 							}
 						}
 						if(parent) {
@@ -199,7 +199,7 @@
 							let a = []
 							if(ch[0].fdata){
 								for(let i=0;i<ch[0].fdata[1];i++){
-									const el = ch[0].node.cloneNode(true)									
+									const el = ch[0].node.cloneNode(true)
 									let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
 									if(child)	child.innerHTML = object[ch[0].fdata[0]][i]
 									a.push(el)
@@ -213,8 +213,8 @@
 						if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
 						ch[0].node = el
 					 	break
-					}					
-					let el = ch[0].node || helpers.create(ch[0].tag[1][0])					
+					}
+					let el = ch[0].node || helpers.create(ch[0].tag[1][0])
 					if(ch[0].inner) {
 						el.setAttribute(`data-${ch[0].inner[0]}`,'')
 						el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
