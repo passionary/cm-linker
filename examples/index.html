@@ -44,44 +44,62 @@
 		let dom = []
 		let ranges
 		let template = `
-			<p l-for="test in tests" l-if="data">
-				test
+		<p l-for="test in tests" l-if="data">
+			test
+		</p>
+		<div l-for="test in tests" l-if="tests">
+			<p>
+				qwe
 			</p>
-			<div l-for="test in tests" l-if="tests">
-				<p>
-					qwe
-				</p>
-				<select l-for="new in news">
-					<span>
-						{{new}}
-					</span>
-					<option l-for="o in other">
-						{{o}}
-					</option>
-				</select>
-			</div>
-			<p l-if="data2">
-				{{data2}}
-			</p>
-			<p l-if="data3">
-				data3
-			</p>
-			<p l-if="data">
-				что то
-			</p>
-			<ul>
-				<li l-for="new in news" l-if="data">
-					{{new}}				
-				</li>
-			</ul>			
+			<select l-for="new in news">
+				<span>
+
+
+
+
+
+					{{new}}
+
+
+
+
+
+
+				</span>
+				<option l-for="o in other">
+
+
+					
+
+
+
+
+
+				</option>
+			</select>
+		</div>
+		<p l-if="data2">
+			{{data2}}
+		</p>
+		<p l-if="data3">
+			data3
+		</p>
+		<p l-if="data">
+			что то
+		</p>
+		<ul>
+			<li l-for="new in news" l-if="data">
+				{{new}}				
+			</li>
+		</ul>
 			`
 		let object = {
 			data: 'data',
-			data2:'oooooo',
+			data2:'qwe',
 			data3:'data',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
-			other:'123456'
+			other:['other1','other2']
 		}
 		const proxy = new Proxy(object, {
     	get(target, prop){
@@ -121,19 +139,32 @@
 				current = nexts[pointer - 2]
 				pointer--
 			}
+			function findInner(str,b,e){
+				let txt
+				for(let i=b;i<e;i++){
+					if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.tag) || temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.cTag)))) 
+					break					
+					if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))){
+						txt = temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))
+						break
+					}
+				}
+				console.log(txt)
+				return txt
+			}
 			let inner
 			let text
 			while(current < temp.length && nodes.length != sopens.length){
 				let str = temp.slice(current,nexts[pointer])
 				let tag = str.match(new RegExp(rules.tag))
-				let cTag = str.match(new RegExp(rules.cTag))
+				let cTag = str.match(new RegExp(rules.cTag))				
 				if(tag && tag[0] && !nodes.find(i => i.tag[0] == pointer)){
 					crtag = {id:pointer,tag}
 					next()
 					continue
 				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){
 					const expr = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lfor)) || ['']
-					const expr2 = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lif)) || ['']					
+					const expr2 = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lif)) || ['']
 					const lif = expr2[0]
 					const forExp = expr[0]
 					const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
@@ -141,7 +172,8 @@
 						tag:[crtag.id,crtag.tag],
 						etag:[pointer,cTag],
 					}
-					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
+					inner = findInner(temp,crtag.id,pointer-1)
+					if(inner) {						
 						obj.inner = inner
 					}
 					if (!temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.cTag)) && !temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.tag)) && !inner && (text = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.innerText,'u')))) {
