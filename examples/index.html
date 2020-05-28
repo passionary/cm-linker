@@ -44,16 +44,54 @@
 		let dom = []
 		let ranges
 		let template = `
-		<div>
-			<p l-for="test in tests" l-if="data">
-				{{test}}
+			<div l-for="test in tests">
+				<ul l-for="n in tests">
+					<select name="" id="" l-for="new in news">
+						<option value="" l-for="o in other">
+							<p l-if="data">
+								{{new}}
+							</p>
+							<span l-if="data2">
+								{{test}}
+							</span>
+							<p l-if="data3">
+								{{n}}
+							</p>
+						</option>
+					</select>
+				</ul>
+			</div>
+			<p l-if="data">
+			{{data}}
 			</p>
-		</div>
+			<p l-if="data2">
+			{{data2}}
+			</p>
+			<p l-if="data3">
+				{{data3}}
+			</p>			
+			<ul l-for="new in news">
+				<li>
+					<select name="" id="">
+						<p l-for="some in other" l-if="data2">
+							<option value="">
+								{{some}}
+							</option>
+							<p l-if="data3">
+								{{new}}
+							</p>
+							<span l-if="data">
+								something else.
+							</span>
+						</p>
+					</select>
+				</li>
+			</ul>
 			`
 		let object = {
-			data: 'data',
+			data: '',
 			data2:'qwe',
-			data3:'data',
+			data3:'data-3',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
 			other:['other1','other2']
@@ -83,6 +121,7 @@
 			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
 			let pointer = 0
 			let current = 0
+			let iter = 0
 
 			function next(){
 				current = nexts[pointer++]
@@ -112,6 +151,7 @@
 			let inner
 			let text
 			while(current < temp.length && nodes.length != sopens.length){
+				iter++
 				let str = temp.slice(current,nexts[pointer])
 				let tag = str.match(new RegExp(rules.tag))
 				let cTag = str.match(new RegExp(rules.cTag))				
@@ -137,8 +177,8 @@
 					}
 					if(lif) obj.idata = lif
 					if(data && key) obj.fdata = [data,object[data].length,key]
-					nodes.unshift(obj)
-					crtag = 'no'
+					nodes.unshift(obj)					
+					crtag = 'no'					
 					next()
 					continue
 				}else if(crtag === 'no'){
@@ -147,6 +187,7 @@
 				}
 				next()
 			}
+			console.log(iter)
 			return nodes
 		}
 
