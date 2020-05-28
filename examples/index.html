@@ -44,54 +44,11 @@
 		let dom = []
 		let ranges
 		let template = `
-		<p l-for="test in tests" l-if="data">
-			test
-		</p>
-		<div l-for="test in tests" l-if="tests">
-			<p>
-				qwe
+		<div>
+			<p l-for="test in tests" l-if="data">
+				{{test}}
 			</p>
-			<select l-for="new in news">
-				<span>
-
-
-
-
-
-					{{new}}
-
-
-
-
-
-
-				</span>
-				<option l-for="o in other">
-
-
-					
-
-
-
-
-
-				</option>
-			</select>
 		</div>
-		<p l-if="data2">
-			{{data2}}
-		</p>
-		<p l-if="data3">
-			data3
-		</p>
-		<p l-if="data">
-			что то
-		</p>
-		<ul>
-			<li l-for="new in news" l-if="data">
-				{{new}}				
-			</li>
-		</ul>
 			`
 		let object = {
 			data: 'data',
@@ -139,17 +96,17 @@
 				current = nexts[pointer - 2]
 				pointer--
 			}
-			function findInner(str,b,e){
+			function findInner(str,b,e,dir = false){								
 				let txt
 				for(let i=b;i<e;i++){
 					if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.tag) || temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.cTag)))) 
-					break					
-					if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))){
-						txt = temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))
-						break
-					}
+					break
+					txt = dir ? 
+						temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))
+					:!temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner)) 
+					&&temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.innerText))
+					if(txt) break										
 				}
-				console.log(txt)
 				return txt
 			}
 			let inner
@@ -171,12 +128,11 @@
 					let obj = {
 						tag:[crtag.id,crtag.tag],
 						etag:[pointer,cTag],
-					}
-					inner = findInner(temp,crtag.id,pointer-1)
-					if(inner) {						
+					}					
+					if(inner = findInner(temp,crtag.id,pointer-1,true)) {
 						obj.inner = inner
 					}
-					if (!temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.cTag)) && !temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.tag)) && !inner && (text = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.innerText,'u')))) {
+					if (text = findInner(temp,crtag.id,pointer-1)) {
 						obj.text = text[0].trim()
 					}
 					if(lif) obj.idata = lif
