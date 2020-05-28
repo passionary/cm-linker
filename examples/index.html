@@ -44,44 +44,44 @@
 		let dom = []
 		let ranges
 		let template = `
-			<p l-for="test in tests">
-				Hello
-			</p>
-			<div l-for="test in tests">
-				<p>
+			<p l-for="test in tests" l-if="data">
 				test
+			</p>
+			<div l-for="test in tests" l-if="tests">
+				<p>
+					qwe
 				</p>
-				<select name="" id="" l-for="new in news">					
+				<select l-for="new in news">
 					<span>
 						{{new}}
 					</span>
-					<option value="" l-for="o in other">
+					<option l-for="o in other">
 						{{o}}
 					</option>
 				</select>
 			</div>
-			<p>
-			{{data}}
+			<p l-if="data2">
+				{{data2}}
 			</p>
-			<p>
-			{{data2}}
+			<p l-if="data3">
+				data3
 			</p>
-			<p>
-			{{data3}}
+			<p l-if="data">
+				что то
 			</p>
-			<ul l-for="new in news">
-				<li>
-					{{new}}
+			<ul>
+				<li l-for="new in news" l-if="data">
+					{{new}}				
 				</li>
-			</ul>
+			</ul>			
 			`
 		let object = {
-			data: 'someData',
-			data2:'some2',
-			data3:'some3',
+			data: 'data',
+			data2:'oooooo',
+			data3:'data',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
-			other:['other1','other2!']
+			other:'123456'
 		}
 		const proxy = new Proxy(object, {
     	get(target, prop){
@@ -103,16 +103,16 @@
 				inner: '(?<=\{\{\)[\\w]+(?=\}\})',
 				lfor: '(?<=for=")[^"]+(?=")',
 				lif: '(?<=if=")[^"]+(?=")',
-				innerText: '[^\\s]+'
+				innerText: '.+'
 			}
 			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
 			let pointer = 0
 			let current = 0
 
-			function next(){			
+			function next(){
 				current = nexts[pointer++]
 			}
-			let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))			
+			let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))
 			let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))
 			if(sopens.length != scloses.length) throw Error('invalid html in template')
 			let nodes = []
@@ -133,6 +133,8 @@
 					continue
 				}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){
 					const expr = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lfor)) || ['']
+					const expr2 = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lif)) || ['']					
+					const lif = expr2[0]
 					const forExp = expr[0]
 					const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 					let obj = {
@@ -142,9 +144,10 @@
 					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
 						obj.inner = inner
 					}
-					if (!temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.cTag)) && !temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.tag)) && !inner && (text = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.innerText)))) {						
-						obj.text = text
+					if (!temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.cTag)) && !temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.tag)) && !inner && (text = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.innerText,'u')))) {
+						obj.text = text[0].trim()
 					}
+					if(lif) obj.idata = lif
 					if(data && key) obj.fdata = [data,object[data].length,key]
 					nodes.unshift(obj)
 					crtag = 'no'
@@ -155,7 +158,7 @@
 					continue
 				}
 				next()
-			}			
+			}
 			return nodes
 		}
 
@@ -183,21 +186,24 @@
 					const ch = buf[i]
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 					let el = ch[0].node || helpers.create(ch[0].tag[1][0])
+					if(ch[0].inner || ch[0].text){
+						if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
+						el.innerHTML = ch[0].inner ? object[ch[0].inner && ch[0].inner[0]] || '' : ch[0].text || ''
+					}					
 					ch[0].node = el
 					if(pr)
 					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
-					if(ch[0].inner || ch[0].text) {
-						if(ch[0].inner)
-						el.setAttribute(`data-${ch[0].inner[0]}`,'')
-						el.innerHTML = el.innerHTML || ch[0].inner && object[ch[0].inner[0]] || ch[0].text
-					}
 					if(!pr && buf.length > 1) {
 						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
 						if(ch[2].length) {
 							ch[2].forEach(e => {
 								if(Array.isArray(e)){
-									e.forEach(n => ch[0].node.append(n))
+									e.forEach(n => {
+										if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+										ch[0].node.append(n)
+									})
 								}else {
+									if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 									ch[0].node.append(e)
 								}
 							})
@@ -211,12 +217,13 @@
 								if(child.length || child) {
 									if(child.length){
 										for(let j=0;j<child.length; j++){
-											child[j].innerHTML = object[ch[0].fdata[0]][i]
+											child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
 										}								
 									}else{
-										child.innerHTML = object[ch[0].fdata[0]][i]
+										child.innerHTML = object[ch[0].fdata[0]][i] || ''
 									}
 								}
+								if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 								buf.nodes.push(el)
 							}
 						}
@@ -228,14 +235,19 @@
 								for(let i=0;i<ch[0].fdata[1];i++){
 									const el = ch[0].node.cloneNode(true)
 									let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
-									if(child)	child.innerHTML = object[ch[0].fdata[0]][i]
+									if(child)	child.innerHTML = object[ch[0].fdata[0]][i] || ''
+									if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 									a.push(el)
 								}
+								if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 								buf.parent[2].push(a)
-							}else buf.parent[2].push(ch[0].node)
+							}else {
+								if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+								buf.parent[2].push(ch[0].node)
+							}
 						}
 						break
-					}else if(buf.length <= 1){
+					}else if(buf.length <= 1){						
 						if(ch[0].fdata && ch[1] == 0){
 							buf.nodes = []
 							for(let i=0;i<ch[0].fdata[1];i++){
@@ -245,19 +257,16 @@
 								if(child.length || child) {
 									if(child.length){
 										for(let j=0;j<child.length; j++){
-											child[j].innerHTML = object[ch[0].fdata[0]][i]
+											child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
 										}								
 									}else{
-										child.innerHTML = object[ch[0].fdata[0]][i]
+										child.innerHTML = object[ch[0].fdata[0]][i] || ''
 									}
-								}
+								}								
+								if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 								buf.nodes.push(el)
 							}
-						}else{
-							let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-							if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
-							ch[0].node = el
-						}						
+						}
 					 	break
 					}					
 					if(ch[0].fdata){
@@ -268,22 +277,29 @@
 							if(child.length || child) {
 								if(child.length){
 									for(let j=0;j<child.length; j++){
-										child[j].innerHTML = object[ch[0].fdata[0]][i]
+										child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
 									}								
 								}else{
-									child.innerHTML = object[ch[0].fdata[0]][i]
+									child.innerHTML = object[ch[0].fdata[0]][i] || ''
 								}
 							}
+							if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
 							pr[0].node.appendChild(el)
 						}
-					}else pr[0].node.appendChild(ch[0].node)
+					}else {
+						if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
+							pr[0].node.appendChild(ch[0].node)
+						}
+					}
 					i++
 				}
 			}
 			buffer.filter(e => e[e.length - 1][1] == 0).forEach(el => {
 				if(el.nodes){
 					el.nodes.forEach(node => html.append(node))
-				}else html.appendChild(el[el.length - 1][0].node)
+				}else if(!el[el.length - 1][0].idata || el[el.length - 1][0].idata && object[el[el.length - 1][0].idata]) {
+					html.appendChild(el[el.length - 1][0].node)
+				}
 			})
 			return html
 		}
@@ -293,19 +309,6 @@
 			recursion(ranges)			
 			return defineDom(ranges,dom)
 		}
-		/* -----Array-----
-
-				[1, 18, 17]   STEPS: 1) nearest: [1, 18, 17] - at the beginning
-				[14, 17, 3]					 2) nearest - [2, 6, 4] - at the beginning of max
-				[15, 16, 1]					 3) next - [3, 5, 2] - is into nearest
-				[7, 13, 6]					 4) next - [7, 13, 6] - out of nearest and after him
-				[10, 12, 2]					 5) nearest - [8, 9, 1] - into [7, 13, 6]
-				[8, 9, 1]						 6) next - [10, 12, 2] - into [7, 13, 6] after [8, 9, 1]
-				[2, 6, 4]						 7) next - [14, 17, 3] - after [7, 13, 6]
-				[3, 5, 2]						 8) nearest - [15, 16, 1] - into [14, 17, 3]
-
-			 -----Array-----
-		*/	
 		function recursion(rangs){
 			for(let i=0;i<rangs.length;i++){
 				const id = ranges.findIndex(e => e == rangs[i])
