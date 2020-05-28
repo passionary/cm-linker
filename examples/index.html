@@ -39,37 +39,46 @@
 				}
 				return node
 			}
-		}		
+		}
 		let html = document.createElement('div')
 		let dom = []
 		let ranges
 		let template = `
-		<p>
-		</p>
-			<div l-for="t in tests">
+			<p l-for="test in tests">
+				Hello
+			</p>
+			<div l-for="test in tests">
 				<p>
-					{{t}}
+				test
 				</p>
-				<p>
-					{{t}}
-				</p>
+				<select name="" id="" l-for="new in news">					
+					<span>
+						{{new}}
+					</span>
+					<option value="" l-for="o in other">
+						{{o}}
+					</option>
+				</select>
 			</div>
 			<p>
-				{{t}}
+			{{data}}
 			</p>
 			<p>
+			{{data2}}
 			</p>
-			<div l-for="new in news">
-				<p>
+			<p>
+			{{data3}}
+			</p>
+			<ul l-for="new in news">
+				<li>
 					{{new}}
-				</p>
-				<p l-for="n in news">
-					{{n}}
-				</p>
-			</div>
+				</li>
+			</ul>
 			`
 		let object = {
 			data: 'someData',
+			data2:'some2',
+			data3:'some3',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
 			other:['other1','other2!']
@@ -93,9 +102,9 @@
 				cTag: '(?<=\/)[\\w]+',
 				inner: '(?<=\{\{\)[\\w]+(?=\}\})',
 				lfor: '(?<=for=")[^"]+(?=")',
-				innerText: '[^\{\}]+'
+				lif: '(?<=if=")[^"]+(?=")',
+				innerText: '[^\\s]+'
 			}
-
 			let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
 			let pointer = 0
 			let current = 0
@@ -113,6 +122,7 @@
 				pointer--
 			}
 			let inner
+			let text
 			while(current < temp.length && nodes.length != sopens.length){
 				let str = temp.slice(current,nexts[pointer])
 				let tag = str.match(new RegExp(rules.tag))
@@ -129,8 +139,11 @@
 						tag:[crtag.id,crtag.tag],
 						etag:[pointer,cTag],
 					}
-					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {
+					if(inner = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.inner))) {						
 						obj.inner = inner
+					}
+					if (!temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.cTag)) && !temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.tag)) && !inner && (text = temp.slice(nexts[pointer-2],nexts[pointer-1]).match(new RegExp(rules.innerText)))) {						
+						obj.text = text
 					}
 					if(data && key) obj.fdata = [data,object[data].length,key]
 					nodes.unshift(obj)
@@ -169,6 +182,15 @@
 				while(true){
 					const ch = buf[i]
 					const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
+					let el = ch[0].node || helpers.create(ch[0].tag[1][0])
+					ch[0].node = el
+					if(pr)
+					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
+					if(ch[0].inner || ch[0].text) {
+						if(ch[0].inner)
+						el.setAttribute(`data-${ch[0].inner[0]}`,'')
+						el.innerHTML = el.innerHTML || ch[0].inner && object[ch[0].inner[0]] || ch[0].text
+					}
 					if(!pr && buf.length > 1) {
 						const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
 						if(ch[2].length) {
@@ -214,18 +236,30 @@
 						}
 						break
 					}else if(buf.length <= 1){
-						let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-						if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
-						ch[0].node = el
+						if(ch[0].fdata && ch[1] == 0){
+							buf.nodes = []
+							for(let i=0;i<ch[0].fdata[1];i++){
+								const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1][0])
+								let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+								child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
+								if(child.length || child) {
+									if(child.length){
+										for(let j=0;j<child.length; j++){
+											child[j].innerHTML = object[ch[0].fdata[0]][i]
+										}								
+									}else{
+										child.innerHTML = object[ch[0].fdata[0]][i]
+									}
+								}
+								buf.nodes.push(el)
+							}
+						}else{
+							let el = ch[0].node || helpers.create(ch[0].tag[1][0])
+							if(ch[0].inner) el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
+							ch[0].node = el
+						}						
 					 	break
-					}
-					let el = ch[0].node || helpers.create(ch[0].tag[1][0])
-					if(ch[0].inner) {
-						el.setAttribute(`data-${ch[0].inner[0]}`,'')
-						el.innerHTML = el.innerHTML || object[ch[0].inner[0]] || ''
-					}
-					ch[0].node = el
-					pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
+					}					
 					if(ch[0].fdata){
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
@@ -272,15 +306,15 @@
 
 			 -----Array-----
 		*/	
-		function recursion(rangs){			
+		function recursion(rangs){
 			for(let i=0;i<rangs.length;i++){
-				const id = ranges.findIndex(e => e == rangs[i])			
+				const id = ranges.findIndex(e => e == rangs[i])
 				const children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])
 				if(children.length){
 					dom[id] = children.map(e => ranges.findIndex(el => el == e)).join(',')
 					recursion(children)
-				}else	dom[id] = ''				
-			}			
+				}else	dom[id] = ''
+			}
 		}
 		function defineDom(ranges,array){
 			let DOM = []
