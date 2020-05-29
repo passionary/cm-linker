@@ -120,8 +120,9 @@ export function render(array,object)
 							child.innerHTML = object[ch[0].fdata[0]][i] || ''
 						}
 					}
-					if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
-					pr[0].node.appendChild(el)
+					if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
+						pr[0].node.appendChild(el)
+					}
 				}
 			}else {
 				if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){

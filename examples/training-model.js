@@ -28,49 +28,48 @@ let dom = []
 let ranges
 let template = `
 	<div l-for="test in tests" l-if="data">
-		<ul l-for="n in tests">
-			<select name="" id="" l-for="new in news">
-				<option value="" l-for="o in other">
-					<p l-if="data">
-						{{new}}
-					</p>
-					<span l-if="data2">
-						{{test}}
-					</span>
-					<p l-if="data3">
-						{{n}}
-					</p>
-				</option>
-			</select>
-		</ul>
-	</div>
-	<p l-if="data">
-	{{data}}
-	</p>
-	<p l-if="data2">
-	{{data2}}
-	</p>
-	<p l-if="data3">
-		{{data3}}
-	</p>			
-	<ul l-for="new in news" l-if="data2">
-		<li>
-			<select name="" id="">
-				<p l-for="some in other" l-if="data2">
-					<option value="">
-					qwerty
+			<ul l-for="n in tests">
+				<select name="" id="" l-for="new in news">
+					<option value="" l-for="o in other">
+						<p l-if="data">
+							{{new}}
+						</p>
+						<span l-if="data2">
+							{{test}}
+						</span>
+						<p l-if="data3">
+							{{n}}
+						</p>
 					</option>
-					<p l-if="data3">
+				</select>
+			</ul>
+		</div>			
+		<p l-if="data">
+		{{data}}
+		</p>
+		<p l-if="data2">
+		{{data2}}
+		</p>
+		<p l-if="data3">
+			{{data3}}
+		</p>										
+		<ul l-for="new in news" l-if="data2">
+			<li>
+				<select name="" id="">
+					<p l-for="some in other" l-if="data2">
+						<option value="">
+						qwerty
+						</option>
+						<p l-if="data3">
+						{{data3}}
+						</p>
+						<span l-if="data">
+							something else.
+						</span>
 					</p>
-					<span l-if="data">
-						something else.
-					</span>
-				</p>
-			</select>
-		</li>
-	</ul>
-	<video l-if="data3">
-	</video>
+				</select>
+			</li>
+		</ul>
 	`
 let object = {
 	data: 'asd',
@@ -87,10 +86,10 @@ const proxy = new Proxy(object, {
 	set(target, prop, val, receiver) {    		
 		target[prop] = val 		
 		html = main()
+		console.log(html)
 		return true
 	}	
 })
-proxy.tests = ['test1','test2','test3!']
 console.log(html)
 function defineNodes(temp)
 {
@@ -170,8 +169,8 @@ function defineNodes(temp)
 			continue
 		}
 		next()
-	}
-	console.log(iter)
+	}	
+	console.log(nodes)
 	return nodes
 }
 
@@ -191,8 +190,7 @@ function render(array)
 		buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 		array.splice(0,id+1)
 	}
-	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])
-	console.log(buffer)
+	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])	
 	for(let buf of buffer){
 		let i = 0
 		while(true){

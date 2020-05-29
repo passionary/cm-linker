@@ -40,65 +40,6 @@ const reactivate = function (){
 	})
 }
 
-function init(){	
-	const component = new Component({
-		cname:'test',
-		data:{
-			data: 'object-data-1',
-			data2:'some-data-2',
-			data3:'anything-3',
-			tests:['test1','test2','test3!'],
-			news:['news1','news2','news3'],
-			other:['other1','other2']
-		},
-		template:
-			`
-			<div l-for="test in tests" l-if="data">
-				<ul l-for="n in tests">
-					<select name="" id="" l-for="new in news">
-						<option value="" l-for="o in other">
-							<p l-if="data">
-								{{new}}
-							</p>
-							<span l-if="data2">
-								{{test}}
-							</span>
-							<p l-if="data3">
-								{{n}}
-							</p>
-						</option>
-					</select>
-				</ul>
-			</div>			
-			<p l-if="data">
-			{{data}}
-			</p>
-			<p l-if="data2">
-			{{data2}}
-			</p>
-			<p l-if="data3">
-				{{data3}}
-			</p>										
-			<ul l-for="new in news" l-if="data2">
-				<li>
-					<select name="" id="">
-						<p l-for="some in other" l-if="data2">
-							<option value="">
-							qwerty
-							</option>
-							<p l-if="data3">
-							{{data3}}
-							</p>
-							<span l-if="data">
-								something else.
-							</span>
-						</p>
-					</select>
-				</li>
-			</ul>			
-			`			
-	})
-}
 class Watcher 
 {
 	constructor(data,cb){
@@ -182,11 +123,11 @@ class Render
 		this.nexts = array(template.matchAll(/\n/g)).map(i => i.index + 1)		
 		this.opens = array(template.matchAll(new RegExp(this.rules.tag,'g')))
 		this.closes = array(template.matchAll(new RegExp(this.rules.ctag,'g')))
-		this.defineView(name,template,children)		
-		this.view = render(makeOutput(this.nodes),component.data)
+		this.defineView()		
+		this.view = main(this.nodes,component.data)
 		console.log(this.view)
 	}
-	defineView(pointer){
+	defineView(){
 		const linker = () => {
 			if(typeof this.current == 'undefined' || this.current > this.template.length || this.nodes.length == this.opens.length) {				
 				return 
@@ -248,16 +189,57 @@ class Component
 {
 	pointer = 0
 	constructor(obj){
+		let self = this
 		this.id = count(name.call(this))
 		let {cname,data, methods, children, hooks, template} = obj
-		this.data = data
-		this.name = cname
-		this._view = new Render(this,cname,template,this.pointer).view		
-		this._watcher = new Watcher(
-			data,
-			this.view
-		)
+		this.data = data;
+		let render = new Render(this,cname,template,this.pointer)
+		this._view = render.view
+		this.data = new Proxy(data ,{
+			get(target, prop){
+				return target[prop]
+			},
+			set(target, prop, val, receiver){
+				target[prop] = val
+				self.pointer = 0
+				new Render(self,cname,template,self.pointer)
+				return true
+			}
+		})		
 	}
 }
-
-init()
+function main(nodes,data)
+{
+	return render(makeOutput(nodes),data)
+}
+window.component = new Component({
+	cname:'test',
+	data:{
+		data: 'object-data-1',
+		data2:'some-data-2',
+		data3:'anything-3',
+		tests:['test1','test2','test3!'],
+		news:['news1','news2','news3'],
+		other:['other1','other2']
+	},
+	template:
+		`										
+		<ul l-for="new in news" l-if="data2">
+			<li>
+				<select name="" id="">
+					<p l-for="some in other" l-if="data2">
+						<option value="">
+						qwerty
+						</option>
+						<p l-if="data3">
+						{{data3}}
+						</p>
+						<span l-if="data">
+							something else.
+						</span>
+					</p>
+				</select>
+			</li>
+		</ul>			
+		`			
+})
