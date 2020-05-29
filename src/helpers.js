@@ -1,3 +1,5 @@
+import counts from './counts'
+
 export default {
 	create(tag){
 		return document.createElement(tag)
@@ -21,4 +23,16 @@ export default {
 		}
 		return node
 	}
+}
+export function array(elem){
+	return Array.from(elem)
+}
+
+export function name(){
+	return this['__proto__'].constructor.name
+}
+
+export function count(context){
+	counts[context]++
+	return counts[context]
 }

@@ -1,8 +1,12 @@
 import dom from './helpers'
-import {render} from './render'
-import {makeOutput,recursion,defineDom} from './util'
-
-const counts = {Watcher:0,Dep:0,Vnode:0,Component:0,GlobalApi:0}
+import patch from './patch'
+import Render from './render'
+import { findInner } from './patch'
+import { makeOutput } from './util'
+import { linker } from './linker'
+import counts from './counts'
+import Vnode from './vnode'
+import { count, name, array } from './helpers'
 
 class GlobalApi
 {
@@ -11,207 +15,33 @@ class GlobalApi
 	]
 }
 
-const tParserFns = {
-	snode: new RegExp(`<[^>/]+>+`,'g'),
-	obsnode: new RegExp('(-if|-for|-bind)')
-}
-// console.log(tParserFns.snode)
-const array = elem => {
-	return Array.from(elem)
-}
-
-const name = function (){
-	return this['__proto__'].constructor.name
-}
-
-const count = function(context){
-	counts[context]++
-	return counts[context]
-}
-
-const reactivate = function (){
-	const proxy = new Proxy(data, {
+const reactivate = function (render){			
+	return new Proxy(render.data, {
 		get(target, prop){
-			Reflect.get(target, prop)
+			return Reflect.get(target, prop)
 		},
 	  set(target, prop, val) {
-	    return Reflect.set(target, prop, val)
+	  	target[prop] = val
+	  	console.log(render.update())
+	  	return true
 	  }
 	})
 }
 
-class Watcher 
-{
-	constructor(data,cb){
-		this.id = count(name.call(this))
-
-		this.deps = []
-	}	
-	update(){
-		for(let i=0;i<this.deps.length;i++){
-			let dep = this.deps[i]
-
-			dep.notify()
-		}
-	}
-}
-
-class Dep
-{
-	constructor(obj){
-		this.id = count(name.call(this))
-		this.vnodes = []
-	}
-	locate(vnode){
-		this.vnodes.push(vnode)
-	}
-	notify(){
-		for(let i=0;i<this.vnodes.length;i++){
-			const vnode = this.vnodes[i]
-
-			dom.update(vnode,this.value || '')
-		}
-	}
-}
-function findInner(str,b,e,dir = false){								
-	let txt
-	for(let i=b;i<e;i++){
-		if(str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.tag) 
-		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag)))) 
-		break
-		txt = dir ? 
-			str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner))
-		:!str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner)) 
-		&&str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.innerText))
-		if(txt) break										
-	}
-	return txt
-}
-class Vnode
-{
-	static patterns = {
-		creating:[dom.create,dom.style],
-		appearing:[dom.create,dom.style,dom.remove],
-		observing:[dom.create,dom.style,dom.remove,dom.update,dom.append]
-	}
-
-	constructor(cb,pointer){
-		this.id = count(name.call(this))		
-		
-		return cb()
-
-	}
-}
-
-class Render
-{
-	rules = {
-		tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
-		ctag: '(?<=\/)[\\w]+',
-		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
-		lfor: '(?<=for=")[^"]+(?=")',
-		lif: '(?<=if=")[^"]+(?=")',
-		innerText: '.+'
-	}
-	nodes = []
-	current = 0
-	crtag =  ''
-	pointer = 0	
-	constructor(component,name,template,children){		
-		this.template = template
-		this.component = component
-		this.nexts = array(template.matchAll(/\n/g)).map(i => i.index + 1)		
-		this.opens = array(template.matchAll(new RegExp(this.rules.tag,'g')))
-		this.closes = array(template.matchAll(new RegExp(this.rules.ctag,'g')))
-		this.defineView()		
-		this.view = main(this.nodes,component.data)
-		console.log(this.view)
-	}
-	defineView(){
-		const linker = () => {
-			if(typeof this.current == 'undefined' || this.current > this.template.length || this.nodes.length == this.opens.length) {				
-				return 
-			}
-			let str = this.template.slice(this.current,this.nexts[this.pointer])
-			let tag = str.match(new RegExp(this.rules.tag))
-			let ctag = str.match(new RegExp(this.rules.ctag))
-			if(tag && tag[0] && !this.nodes.find(i => i.tag[0] == this.pointer)){
-				this.crtag = {id:this.pointer,tag}
-				this.next()
-				linker.call(this)
-			}else if(ctag && this.crtag && this.crtag.tag 
-				&& ctag[0] && this.crtag.tag[0] 
-				&& this.crtag.tag[0] == ctag[0] && !this.nodes.find(i => i.etag[0] == this.pointer))
-			{
-				const expr = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
-				.match(new RegExp(this.rules.lfor)) || ['']
-				const expr2 = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
-				.match(new RegExp(this.rules.lif)) || ['']
-				const lif = expr2[0]
-				const forExp = expr[0]
-				const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
-				let obj = {
-					tag:[this.crtag.id,this.crtag.tag],
-					etag:[this.pointer,ctag]
-				}
-				if(findInner.call(this,this.template,this.crtag.id,this.pointer-1,true)) 
-					obj.inner = findInner.call(this,this.template,this.crtag.id,this.pointer-1,true)
-				if(findInner.call(this,this.template,this.crtag.id,this.pointer-1))
-					obj.text = findInner.call(this,this.template,this.crtag.id,this.pointer-1)[0].trim()
-				if(lif) obj.idata = lif				
-				if(data && key) obj.fdata = [data,this.component.data[data].length,key]
-
-				this.nodes.unshift(obj)
-				this.crtag = 'no'
-				this.next()
-				linker.call(this)
-			}else if(this.crtag == 'no'){
-				this.back()
-				linker.call(this)
-			}
-			this.next()
-			new Vnode(linker.bind(this))
-		}
-
-		return new Vnode(linker.bind(this))
-		
-	}
-	next(){
-		this.current = this.nexts[this.pointer++]		
-	}
-	back(){
-		this.current = this.nexts[this.pointer - 2]
-		this.pointer--
-	}
-}
-
 class Component
 {
-	pointer = 0
 	constructor(obj){
 		let self = this
 		this.id = count(name.call(this))
 		let {cname,data, methods, children, hooks, template} = obj
-		this.data = data;
-		let render = new Render(this,cname,template,this.pointer)
-		this._view = render.view
-		this.data = new Proxy(data ,{
-			get(target, prop){
-				return target[prop]
-			},
-			set(target, prop, val, receiver){
-				target[prop] = val
-				self.pointer = 0
-				new Render(self,cname,template,self.pointer)
-				return true
-			}
-		})		
+		this.template = template
+		this.data = data
+		this.name = cname		
+		const render = new Render(this,template)
+		this.proxy = reactivate(render)
 	}
 }
-function main(nodes,data)
-{
-	return render(makeOutput(nodes),data)
-}
+
 window.component = new Component({
 	cname:'test',
 	data:{
@@ -223,7 +53,7 @@ window.component = new Component({
 		other:['other1','other2']
 	},
 	template:
-		`										
+		`
 		<ul l-for="new in news" l-if="data2">
 			<li>
 				<select name="" id="">
@@ -240,6 +70,6 @@ window.component = new Component({
 					</p>
 				</select>
 			</li>
-		</ul>			
-		`			
+		</ul>
+		`
 })

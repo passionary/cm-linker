@@ -1,143 +1,6 @@
-/* global variables */
-const helpers = {
-	create(tag){
-		return document.createElement(tag)
-	},
-	append(parent,node){
-		return parent.appendChild(node)
-	},
-	remove(parent,child){
-		parent.removeChild(child)
-	},
-	update(node,val){
-		node.innerHTML = val
-	},
-	style(node){
-		const styles = Array.from(arguments).slice(1)
-		const rule = /([^:\s]{3,}):+\s?(\w+)/
-		for(let i=0;i<styles.length;i++){			
-			const s = styles[i].match(rule)[1]
-			const v = styles[i].match(rule)[2]
-			if(rule.test(styles[i])) node.style[s] = v			
-		}
-		return node
-	}
-}
-let html = document.createElement('div')
-let dom = []
-let ranges
-let template = `
-	<p>
-	</p>
+import helpers from './helpers'
 
-	<p>
-	</p>			
-	`
-let object = {
-	data: 'asd',
-	data2:'123',
-	data3:'123',
-	tests:['test1','test2','test3!'],
-	news:['news1','news2','news3'],
-	other:['other1','other2']
-}
-const proxy = new Proxy(object, {
-	get(target, prop){
-		return target[prop]
-	},
-	set(target, prop, val, receiver) {    		
-		target[prop] = val 		
-		html = main()
-		console.log(html)
-		return true
-	}	
-})
-html = main()
-console.log(html)
-function defineNodes(temp)
-{
-	let rules = {
-		tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
-		cTag: '(?<=\/)[\\w]+',
-		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
-		lfor: '(?<=for=")[^"]+(?=")',
-		lif: '(?<=if=")[^"]+(?=")',
-		innerText: '.+'
-	}
-	let nexts = Array.from(temp.matchAll(/\n/g)).map(i => i.index + 1)
-	let pointer = 0
-	let current = 0
-	let iter = 0
-
-	function next(){
-		current = nexts[pointer++]
-	}
-	let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))
-	let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))	
-	if(sopens.length != scloses.length) throw Error('invalid html in template')
-	let nodes = []
-	let crtag = ''
-	function back(){
-		current = nexts[pointer - 2]
-		pointer--
-	}
-	function findInner(str,b,e,dir = false){								
-		let txt
-		for(let i=b;i<e;i++){
-			if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.tag) || temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.cTag)))) 
-			break
-			txt = dir ? 
-				temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))
-			:!temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner)) 
-			&&temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.innerText))
-			if(txt) break										
-		}
-		return txt
-	}
-	let inner
-	let text
-	while(current < temp.length && nodes.length != sopens.length){
-		iter++		
-		let str = temp.slice(current,nexts[pointer])
-		let tag = str.match(new RegExp(rules.tag))
-		let cTag = str.match(new RegExp(rules.cTag))				
-		if(tag && tag[0] && !nodes.find(i => i.tag[0] == pointer)){
-			crtag = {id:pointer,tag}
-			next()
-			continue
-		}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){
-			const expr = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lfor)) || ['']
-			const expr2 = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lif)) || ['']
-			const lif = expr2[0]
-			const forExp = expr[0]
-			const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
-			let obj = {
-				tag:[crtag.id,crtag.tag],
-				etag:[pointer,cTag],
-			}					
-			if(inner = findInner(temp,crtag.id,pointer-1,true)) {
-				obj.inner = inner
-			}
-			if (text = findInner(temp,crtag.id,pointer-1)) {
-				obj.text = text[0].trim()
-			}
-			if(lif) obj.idata = lif
-			if(data && key) obj.fdata = [data,object[data].length,key]
-			nodes.unshift(obj)					
-			crtag = 'no'					
-			next()
-			continue
-		}else if(crtag === 'no'){
-			back()
-			continue
-		}
-		next()
-	}	
-	console.log(nodes)
-	return nodes
-}
-
-function render(array)
+export default function patch(array,object)
 {
 	let html = helpers.create('div')
 	let i = 0
@@ -153,7 +16,7 @@ function render(array)
 		buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 		array.splice(0,id+1)
 	}
-	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])	
+	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])			
 	for(let buf of buffer){
 		let i = 0
 		while(true){
@@ -257,8 +120,9 @@ function render(array)
 							child.innerHTML = object[ch[0].fdata[0]][i] || ''
 						}
 					}
-					if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
-					pr[0].node.appendChild(el)
+					if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
+						pr[0].node.appendChild(el)
+					}
 				}
 			}else {
 				if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
@@ -277,31 +141,17 @@ function render(array)
 	})
 	return html
 }
-function makeOutput(array)
-{			
-	ranges = array.sort((a,b) => a.tag[0] - b.tag[0])
-	recursion(ranges)			
-	return defineDom(ranges,dom)
-}
-function recursion(rangs){
-	for(let i=0;i<rangs.length;i++){
-		const id = ranges.findIndex(e => e == rangs[i])
-		const children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])
-		if(children.length){
-			dom[id] = children.map(e => ranges.findIndex(el => el == e)).join(',')
-			recursion(children)
-		}else	dom[id] = ''
+export function findInner(str,b,e,dir = false){								
+	let txt
+	for(let i=b;i<e;i++){
+		if(str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.tag) 
+		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag)))) 
+		break
+		txt = dir ? 
+			str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner))
+		:!str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner)) 
+		&&str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.innerText))
+		if(txt) break										
 	}
+	return txt
 }
-function defineDom(ranges,array){
-	let DOM = []
-	for(let i=0;i<array.length;i++){				
-		const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
-		DOM.push([ranges.find((e,index) => index == i),count,[]])
-	}
-	return DOM
-}
-function main()
-{
-	return render(makeOutput(defineNodes(template)))
-}		

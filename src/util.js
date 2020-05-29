@@ -7,7 +7,7 @@ export function makeOutput(array)
 	recursion(ranges)			
 	return defineDom(ranges,dstruct)
 }
-export function recursion(rangs){
+function recursion(rangs){
 	for(let i=0;i<rangs.length;i++){
 		const id = ranges.findIndex(e => e == rangs[i])
 		const children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])
@@ -17,7 +17,7 @@ export function recursion(rangs){
 		}else	dstruct[id] = ''
 	}
 }
-export function defineDom(ranges,array){
+function defineDom(ranges,array){
 	let DOM = []
 	for(let i=0;i<array.length;i++){				
 		const count = array.filter(e => new RegExp(`\\b${i}\\b`).test(e)).length
