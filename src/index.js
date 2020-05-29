@@ -1,44 +1,6 @@
-/**
-<-------- old code ---------->
-// directives 
-
-const [rvals,cicles,links,conditions] = [
-	array(temp.matchAll(this.rules.directive)),
-	array(temp.matchAll(this.rules.cicle)),
-	array(temp.matchAll(this.rules.link)),
-	array(temp.matchAll(this.rules.condition)),
-]
-const citems = cicles[0][1].split(' ')
-const [data,val] = [
-	citems[2],
-	citems[0]
-]
-console.log(cicles[1][0].match(/<[^\s]+(?=\sl-for)/))
-
-// regular algorithm
-
-console.log(rvals,cicles,links,conditions)		
-
-for(let i=0;i<rvals.length;i++){
-	const val = rvals[i].groups.value
-	const rule = new RegExp(`>+(?=\\s*\{\{${val}\\s*\}\})`,'g')
-	const buffer = array(temp.matchAll(rule))
-
-	const tag = buffer[0].index
-	let j = tag
-	while(j--) {
-		if(temp[j] === '<') {
-			let t = temp.slice(j,tag+1)				
-			if(/[\s]/.test(t))
-			console.log(t.match(/^<[\w]+(?=\s)/)[0] + t[t.length - 1])
-			break
-		}
-	}
-}
-
-<-------- old code ---------->
-
-*/
+import dom from './helpers'
+import {render} from './render'
+import {makeOutput,recursion,defineDom} from './util'
 
 const counts = {Watcher:0,Dep:0,Vnode:0,Component:0,GlobalApi:0}
 
@@ -47,31 +9,6 @@ class GlobalApi
 	static components = [
 		'menu', 'cart'
 	]
-}
-
-const Dom = {
-	create(tag){
-		return document.createElement(tag)
-	},
-	append(parent,node){
-		return parent.appendChild(node)
-	},
-	remove(parent,child){
-		parent.removeChild(child)
-	},
-	update(node,val){
-		node.innerHTML = val
-	},
-	style(node){
-		const styles = Array.from(arguments).slice(1)
-		const rule = /([^:\s]{3,}):+\s?(\w+)/
-		for(let i=0;i<styles.length;i++){			
-			const s = styles[i].match(rule)[1]
-			const v = styles[i].match(rule)[2]
-			if(rule.test(styles[i])) node.style[s] = v			
-		}
-		return node
-	}
 }
 
 const tParserFns = {
@@ -107,21 +44,59 @@ function init(){
 	const component = new Component({
 		cname:'test',
 		data:{
-			number:1
+			data: 'object-data-1',
+			data2:'some-data-2',
+			data3:'anything-3',
+			tests:['test1','test2','test3!'],
+			news:['news1','news2','news3'],
+			other:['other1','other2']
 		},
-		template: 
-			`<div l-if="value" -bind="some">
-				<p l-for="item in elems">{{number}}</p>
-				<span l-for="item in elems">{{some}}</span>
-			</div>
+		template:
 			`
-		,
-		methods:{
-
-		},
-		hooks:{
-
-		}
+			<div l-for="test in tests" l-if="data">
+				<ul l-for="n in tests">
+					<select name="" id="" l-for="new in news">
+						<option value="" l-for="o in other">
+							<p l-if="data">
+								{{new}}
+							</p>
+							<span l-if="data2">
+								{{test}}
+							</span>
+							<p l-if="data3">
+								{{n}}
+							</p>
+						</option>
+					</select>
+				</ul>
+			</div>			
+			<p l-if="data">
+			{{data}}
+			</p>
+			<p l-if="data2">
+			{{data2}}
+			</p>
+			<p l-if="data3">
+				{{data3}}
+			</p>										
+			<ul l-for="new in news" l-if="data2">
+				<li>
+					<select name="" id="">
+						<p l-for="some in other" l-if="data2">
+							<option value="">
+							qwerty
+							</option>
+							<p l-if="data3">
+							{{data3}}
+							</p>
+							<span l-if="data">
+								something else.
+							</span>
+						</p>
+					</select>
+				</li>
+			</ul>			
+			`			
 	})
 }
 class Watcher 
@@ -153,43 +128,34 @@ class Dep
 		for(let i=0;i<this.vnodes.length;i++){
 			const vnode = this.vnodes[i]
 
-			Dom.update(vnode,this.value || '')
+			dom.update(vnode,this.value || '')
 		}
 	}
 }
-function renderHelpers()
-{
-	const createElements = () => {
-
+function findInner(str,b,e,dir = false){								
+	let txt
+	for(let i=b;i<e;i++){
+		if(str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.tag) 
+		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag)))) 
+		break
+		txt = dir ? 
+			str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner))
+		:!str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner)) 
+		&&str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.innerText))
+		if(txt) break										
 	}
-	const updateElements = () => {
-
-	}
-	const createChildren = () => {
-
-	}
-	const buildView = () => {
-
-	}
-	return {
-		create: createElements,
-		update: updateElements,
-		children: createChildren,
-		buildView
-	}
+	return txt
 }
-
 class Vnode
 {
 	static patterns = {
-		creating:[Dom.create,Dom.style],
-		appearing:[Dom.create,Dom.style,Dom.remove],
-		observing:[Dom.create,Dom.style,Dom.remove,Dom.update,Dom.append]
+		creating:[dom.create,dom.style],
+		appearing:[dom.create,dom.style,dom.remove],
+		observing:[dom.create,dom.style,dom.remove,dom.update,dom.append]
 	}
 
 	constructor(cb,pointer){
 		this.id = count(name.call(this))		
-		pointer++
 		
 		return cb()
 
@@ -199,46 +165,82 @@ class Vnode
 class Render
 {
 	rules = {
-		directive: /\{\{(?<value>[\w]+)\}\}/g,
-		cicle: /<[\w]+\sl-for="([^"]+?)"/g,
-		link: /l-bind\:(?:value|style)="([^"]+?)"/g,
-		condition: /l-if="([^"]+?)"/g
+		tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
+		ctag: '(?<=\/)[\\w]+',
+		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
+		lfor: '(?<=for=")[^"]+(?=")',
+		lif: '(?<=if=")[^"]+(?=")',
+		innerText: '.+'
 	}
-	constructor(name,template,children){
-		this.template = Dom.create('template')
-		// console.log(array(template.matchAll(tParserFns.snode))
-		// 	.filter(i => new RegExp(`^<(?!${GlobalApi.components.join('|')})`)
-		// 		.test(i[0]))
-		// 	.filter(i => tParserFns.obsnode
-		// 		.test(i[0])))
-		this.view = this.defineView(name,template,children)
+	nodes = []
+	current = 0
+	crtag =  ''
+	pointer = 0	
+	constructor(component,name,template,children){		
+		this.template = template
+		this.component = component
+		this.nexts = array(template.matchAll(/\n/g)).map(i => i.index + 1)		
+		this.opens = array(template.matchAll(new RegExp(this.rules.tag,'g')))
+		this.closes = array(template.matchAll(new RegExp(this.rules.ctag,'g')))
+		this.defineView(name,template,children)		
+		this.view = render(makeOutput(this.nodes),component.data)
+		console.log(this.view)
 	}
-	defineView(name,temp,pointer){
-		const components = GlobalApi.components || []
-		
-		let foundedComponents = {}
+	defineView(pointer){
+		const linker = () => {
+			if(typeof this.current == 'undefined' || this.current > this.template.length || this.nodes.length == this.opens.length) {				
+				return 
+			}
+			let str = this.template.slice(this.current,this.nexts[this.pointer])
+			let tag = str.match(new RegExp(this.rules.tag))
+			let ctag = str.match(new RegExp(this.rules.ctag))
+			if(tag && tag[0] && !this.nodes.find(i => i.tag[0] == this.pointer)){
+				this.crtag = {id:this.pointer,tag}
+				this.next()
+				linker.call(this)
+			}else if(ctag && this.crtag && this.crtag.tag 
+				&& ctag[0] && this.crtag.tag[0] 
+				&& this.crtag.tag[0] == ctag[0] && !this.nodes.find(i => i.etag[0] == this.pointer))
+			{
+				const expr = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+				.match(new RegExp(this.rules.lfor)) || ['']
+				const expr2 = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+				.match(new RegExp(this.rules.lif)) || ['']
+				const lif = expr2[0]
+				const forExp = expr[0]
+				const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
+				let obj = {
+					tag:[this.crtag.id,this.crtag.tag],
+					etag:[this.pointer,ctag]
+				}
+				if(findInner.call(this,this.template,this.crtag.id,this.pointer-1,true)) 
+					obj.inner = findInner.call(this,this.template,this.crtag.id,this.pointer-1,true)
+				if(findInner.call(this,this.template,this.crtag.id,this.pointer-1))
+					obj.text = findInner.call(this,this.template,this.crtag.id,this.pointer-1)[0].trim()
+				if(lif) obj.idata = lif				
+				if(data && key) obj.fdata = [data,this.component.data[data].length,key]
 
-		for(let i=0;i<components.length;i++){
-			const comp = temp.matchAll(new RegExp(`${components[i].name}`,'g'))
-			if(comp) foundedComponents[components[i].name] = comp
+				this.nodes.unshift(obj)
+				this.crtag = 'no'
+				this.next()
+				linker.call(this)
+			}else if(this.crtag == 'no'){
+				this.back()
+				linker.call(this)
+			}
+			this.next()
+			new Vnode(linker.bind(this))
 		}
 
-		const linker = (t) => {
-			// if(rvals.length && cicles.length || conditions.length || links.length) {
-			// 	const renders = Vnode.patterns.observing
-			// }else {
-			// 	const renders = Vnode.patterns.creating
-			// }			
-
-
-			if(!this.template[pointer]) return this.template
-
-			new Vnode(linker.bind(null,this.template),pointer)
-			
-		}
-
-		return new Vnode(linker.bind(null,this.template),pointer)
+		return new Vnode(linker.bind(this))
 		
+	}
+	next(){
+		this.current = this.nexts[this.pointer++]		
+	}
+	back(){
+		this.current = this.nexts[this.pointer - 2]
+		this.pointer--
 	}
 }
 
@@ -248,8 +250,9 @@ class Component
 	constructor(obj){
 		this.id = count(name.call(this))
 		let {cname,data, methods, children, hooks, template} = obj
+		this.data = data
 		this.name = cname
-		this._view = new Render(cname,template,this.pointer).view		
+		this._view = new Render(this,cname,template,this.pointer).view		
 		this._watcher = new Watcher(
 			data,
 			this.view
