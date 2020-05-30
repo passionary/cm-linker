@@ -11,7 +11,9 @@ const reactivate = function (render){
 		},
 	  set(target, prop, val) {
 	  	target[prop] = val
+	  	
 	  	render.update()
+
 	  	return true
 	  }
 	})

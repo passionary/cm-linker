@@ -44,5 +44,5 @@ export default function linker (){
 		linker.call(this)
 	}
 	this.next()
-	new Vnode(linker.bind(this))
+	linker.call(this)
 }

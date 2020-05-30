@@ -30,9 +30,9 @@ export default class Render
 		this.nexts = array(this.template.matchAll(/\n/g)).map(i => i.index + 1)
 		this.nexts.unshift(0)
 		this.opens = array(this.template.matchAll(new RegExp(this.rules.tag,'g')))
-		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
+		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))		
 		this.defineView()
-		const html = main(this.nodes,this.data)
+		const html = main(this.nodes,this.data)		
 		this.cm._view = html		
 		this.cm.el.innerHTML = ''
 		this.cm.el.append(html)
@@ -53,7 +53,7 @@ export default class Render
 		this.nodes = []
 	}
 	defineView(){
-		return new Vnode(linker.bind(this))		
+		linker.call(this)
 	}
 	next(){
 		this.current = this.nexts[this.pointer++]

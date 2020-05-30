@@ -138,7 +138,7 @@ export default function patch(array,object)
 		}else if(!el[el.length - 1][0].idata || el[el.length - 1][0].idata && object[el[el.length - 1][0].idata]) {
 			html.appendChild(el[el.length - 1][0].node)
 		}
-	})
+	})	
 	return html
 }
 export function findInner(str,b,e,dir = false){								

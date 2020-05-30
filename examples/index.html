@@ -4,21 +4,34 @@
 	<title>example</title>
 	<meta charset="utf-8">
 	<style>
+		h1{
+			text-align: center;
+		}
 		#app p{
 			color:blue;
 		}
 		#after p{
 			color:green;
 		}
+		#main{
+			display: -webkit-flex;
+			display: -moz-flex;
+			display: -ms-flex;
+			display: -o-flex;
+			display: flex;
+			justify-content: space-around;
+		}
 	</style>
 </head>
 <body>	
-	<h1>Hello</h1>	
-	<div id="app"></div>
-	<div id="after"></div>
+	<h1>Hello</h1>
+	<div id="main">		
+		<div id="app"></div>
+		<div id="after"></div>		
+	</div>
 	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
-<script>
+<script>	
 	let data = GlobalApi.register('#app', {
 		cname:'test',
 		template:
@@ -34,18 +47,10 @@
 
 			<ul l-for="new in news" l-if="data2">
 				<li>
-					<select name="" id="">
-						<p l-for="some in other" l-if="data2">
-							<option value="">
-							qwerty
-							</option>
-							<p l-if="data3">
-							{{data3}}
-							</p>
-							<span l-if="data">
-								something else.
-							</span>
-						</p>
+					<select name="" id="">						
+						<option value="">
+							{{new}}
+						</option>						
 					</select>
 				</li>
 			</ul>
@@ -80,14 +85,14 @@
 		template:
 		`<div l-for="test in tests">
 			<p>
-			{{test}}
+				{{test}}
 			</p>
 		</div>
 		<p>
-		{{data}}
+			{{data}}
 		</p>
 		<p>
-		{{data2}}
+			{{data2}}
 		</p>
 		<h1>
 			{{data3}}
@@ -112,6 +117,10 @@
 			somes:[3,2,1]
 		}
 	})
+	const arr = []
+	document.onclick = () => {
+		data.news = arr
+	}
 </script>
 </body>
 </html>
