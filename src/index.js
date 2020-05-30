@@ -11,7 +11,7 @@ const reactivate = function (render){
 		},
 	  set(target, prop, val) {
 	  	target[prop] = val
-	  	console.log(render.update())
+	  	render.update()
 	  	return true
 	  }
 	})
@@ -19,11 +19,12 @@ const reactivate = function (render){
 
 export class Component
 {
-	constructor(object){
+	constructor(el,object){
 		this.id = count(name.call(this))
 		let {cname, data, methods, children, hooks, template} = object
 		this.template = template
-		this.data = data
-		this.proxy = reactivate(new Render(this,template))
+		this.data = data		
+		this.el = document.querySelector(el)
+		this.proxy = reactivate(new Render(this,template))		
 	}
 }

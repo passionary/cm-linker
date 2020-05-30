@@ -31,13 +31,19 @@ export default class Render
 		this.opens = array(this.template.matchAll(new RegExp(this.rules.tag,'g')))
 		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
 		this.defineView()
-		this.cm._view = main(this.nodes,this.data)
+		const html = main(this.nodes,this.data)
+		this.cm._view = html		
+		this.cm.el.innerHTML = ''
+		console.log(this.cm.el.append(html))
 	}
 	update(){
 		this.reset()
 		this.defineView()
-		this.cm._view = main(this.nodes,this.data)
-		return this.cm._view		
+		const html = main(this.nodes,this.data)
+		this.cm._view = html
+		this.cm.el.innerHTML = ''
+		this.cm.el.append(html)
+		return html
 	}
 	reset(){
 		this.pointer = 0

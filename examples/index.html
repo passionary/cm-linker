@@ -4,20 +4,22 @@
 	<title>example</title>
 	<meta charset="utf-8">
 	<style>
-		p{
-			color: #000;
+		#app p{
+			color:red;
 		}
 	</style>
 </head>
 <body>	
-	<h1>Hello</h1>
-	<template id="temp">		
-		<div id="app"></div>
-	</template>	
+	<h1>Hello</h1>	
+	<div id="app"></div>
+	<div id="after"></div>
 	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
 <script>
-	const data = GlobalApi.register('#app', {
+	const {
+		proxy,
+		output
+	} = GlobalApi.register('#app', {
 		cname:'test',
 		template:
 		`
@@ -56,7 +58,9 @@
 				<p>
 					{{some}}
 				</p>
-				{{test}}
+				<p>
+					{{test}}
+				</p>				
 			</li>
 		</ul>
 		`,
@@ -67,14 +71,14 @@
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
 			other:['other1','other2']
-		},
-		methods:{
-			some(){
-				this.proxy.news = []
-			}
-		},
+		}		
 	})
-	data.news = ['123']
+	const {
+		proxy,
+		output
+	} = GlobalApi.register('#after', {
+
+	})
 </script>
 </body>
 </html>
