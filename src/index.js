@@ -7,13 +7,9 @@ import { linker } from './linker'
 import counts from './counts'
 import Vnode from './vnode'
 import { count, name, array } from './helpers'
+import GlobalApi from './global_api'
 
-class GlobalApi
-{
-	static components = [
-		'menu', 'cart'
-	]
-}
+window.GlobalApi = GlobalApi
 
 const reactivate = function (render){			
 	return new Proxy(render.data, {
@@ -28,48 +24,13 @@ const reactivate = function (render){
 	})
 }
 
-class Component
+export class Component
 {
-	constructor(obj){
-		let self = this
+	constructor(obj){		
 		this.id = count(name.call(this))
-		let {cname,data, methods, children, hooks, template} = obj
+		let {cname, data, methods, children, hooks, template} = obj
 		this.template = template
 		this.data = data
-		this.name = cname		
-		const render = new Render(this,template)
-		this.proxy = reactivate(render)
+		this.proxy = reactivate(new Render(this,template))
 	}
 }
-
-window.component = new Component({
-	cname:'test',
-	data:{
-		data: 'object-data-1',
-		data2:'some-data-2',
-		data3:'anything-3',
-		tests:['test1','test2','test3!'],
-		news:['news1','news2','news3'],
-		other:['other1','other2']
-	},
-	template:
-		`
-		<ul l-for="new in news" l-if="data2">
-			<li>
-				<select name="" id="">
-					<p l-for="some in other" l-if="data2">
-						<option value="">
-						qwerty
-						</option>
-						<p l-if="data3">
-						{{data3}}
-						</p>
-						<span l-if="data">
-							something else.
-						</span>
-					</p>
-				</select>
-			</li>
-		</ul>
-		`
-})
