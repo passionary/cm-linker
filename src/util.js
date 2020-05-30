@@ -1,21 +1,22 @@
-let dstruct = []
 let ranges
 
 export function makeOutput(array)
-{				
+{
+	let dstruct = []
 	ranges = array.sort((a,b) => a.tag[0] - b.tag[0])
-	recursion(ranges)			
+	dstruct = recursion(ranges,dstruct)
 	return defineDom(ranges,dstruct)
 }
-function recursion(rangs){
+function recursion(rangs,dstruct){
 	for(let i=0;i<rangs.length;i++){
 		const id = ranges.findIndex(e => e == rangs[i])
 		const children = ranges.filter(e => e.tag[0] > rangs[i].tag[0] && e.etag[0] < rangs[i].etag[0])
 		if(children.length){
 			dstruct[id] = children.map(e => ranges.findIndex(el => el == e)).join(',')
-			recursion(children)
+			recursion(children,dstruct)
 		}else	dstruct[id] = ''
 	}
+	return dstruct
 }
 function defineDom(ranges,array){
 	let DOM = []
