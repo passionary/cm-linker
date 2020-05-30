@@ -2,8 +2,9 @@ import Vnode from './vnode'
 import { findInner } from './patch'
 
 export default function linker (){
+	if(this.current == this.nexts[0] && this.crtag == 'no') this.crtag = ''
 	if(typeof this.current == 'undefined' || this.current > this.template.length || this.nodes.length == this.opens.length) {				
-		return 
+		return
 	}
 	let str = this.template.slice(this.current,this.nexts[this.pointer])
 	let tag = str.match(new RegExp(this.rules.tag))

@@ -1,17 +1,10 @@
-import dom from './helpers'
-import patch from './patch'
 import Render from './render'
-import { findInner } from './patch'
-import { makeOutput } from './util'
-import { linker } from './linker'
-import counts from './counts'
-import Vnode from './vnode'
 import { count, name, array } from './helpers'
 import GlobalApi from './global_api'
 
 window.GlobalApi = GlobalApi
 
-const reactivate = function (render){			
+const reactivate = function (render){
 	return new Proxy(render.data, {
 		get(target, prop){
 			return Reflect.get(target, prop)
@@ -26,9 +19,9 @@ const reactivate = function (render){
 
 export class Component
 {
-	constructor(obj){		
+	constructor(object){
 		this.id = count(name.call(this))
-		let {cname, data, methods, children, hooks, template} = obj
+		let {cname, data, methods, children, hooks, template} = object
 		this.template = template
 		this.data = data
 		this.proxy = reactivate(new Render(this,template))

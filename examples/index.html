@@ -12,17 +12,23 @@
 <body>	
 	<h1>Hello</h1>
 	<template id="temp">		
-		<div id="app">
-			
-		</div>
+		<div id="app"></div>
 	</template>	
 	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
 <script>
-	const data = GlobalApi.register('#app',{
+	const data = GlobalApi.register('#app', {
 		cname:'test',
 		template:
 		`
+		<p l-for="o in other">
+			{{o}}
+		</p>
+
+		<p>
+			{{data}}
+		</p>
+
 		<ul l-for="new in news" l-if="data2">
 			<li>
 				<select name="" id="">
@@ -38,6 +44,19 @@
 						</span>
 					</p>
 				</select>
+			</li>
+		</ul>
+
+		<p>
+			{{data2}}
+		</p>
+
+		<ul l-for="test in tests">			
+			<li l-for="some in news">
+				<p>
+					{{some}}
+				</p>
+				{{test}}
 			</li>
 		</ul>
 		`,
