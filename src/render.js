@@ -1,5 +1,4 @@
 import { array, count, name } from './helpers'
-import Vnode from './vnode'
 import linker from './linker'
 import patch from './patch'
 import { makeOutput } from './util'
@@ -12,11 +11,13 @@ function main(nodes,data)
 export default class Render
 {
 	rules = {
-		tag: '(?<=[\\s]*)(?<=\<)[\\w]+',
+		tag: '(?<=[\\s]*)(?<=\<)[\\w]+(?=.*>)',
 		ctag: '(?<=\/)[\\w]+',
 		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
 		lfor: '(?<=for=")[^"]+(?=")',
 		lif: '(?<=if=")[^"]+(?=")',
+		stag:'(?<=[\\s]*\<)(?:input|hr|br)(?=.*\\s?\/>)',
+		attr: '(href|name|value|type|action|placeholder)\=\"([^\=\"]+)',
 		innerText: '.+'
 	}
 	nodes = []
@@ -30,8 +31,12 @@ export default class Render
 		this.nexts = array(this.template.matchAll(/\n/g)).map(i => i.index + 1)
 		this.nexts.unshift(0)
 		this.opens = array(this.template.matchAll(new RegExp(this.rules.tag,'g')))
-		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))		
-		this.defineView()
+		.filter(e => !/(input|hr|br)/.test(e[0]))		
+		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
+		this.stags = array(this.template.matchAll(new RegExp(this.rules.stag,'g')))		
+		this.ecount = this.opens.length + this.stags.length
+		this.defineView()		
+		console.log(this.nodes)
 		const html = main(this.nodes,this.data)		
 		this.cm._view = html		
 		this.cm.el.innerHTML = ''

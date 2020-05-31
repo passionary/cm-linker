@@ -12,21 +12,22 @@ export default function patch(array,object)
 		if(id < 0) {
 			buffer.push(array.sort((a,b) => b[1]-a[1]))
 			break
-		}				
+		}
 		buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 		array.splice(0,id+1)
 	}
-	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])			
+	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])
 	for(let buf of buffer){
 		let i = 0
 		while(true){
-			const ch = buf[i]
+			const ch = buf[i]			
 			const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 			let el = ch[0].node || helpers.create(ch[0].tag[1][0])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
 				el.innerHTML = ch[0].inner ? object[ch[0].inner && ch[0].inner[0]] || '' : ch[0].text || ''
-			}					
+			}
+			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))
 			ch[0].node = el
 			if(pr)
 			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
@@ -141,17 +142,17 @@ export default function patch(array,object)
 	})	
 	return html
 }
-export function findInner(str,b,e,dir = false){								
+export function findInner(str,b,e,dir = false){
 	let txt
 	for(let i=b;i<e;i++){
 		if(str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.tag) 
-		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag)))) 
+		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag))))
 		break
 		txt = dir ? 
 			str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner))
 		:!str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner)) 
 		&&str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.innerText))
-		if(txt) break										
+		if(txt) break
 	}
 	return txt
 }

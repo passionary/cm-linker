@@ -4,7 +4,7 @@ export function makeOutput(array)
 {
 	let dstruct = []
 	ranges = array.sort((a,b) => a.tag[0] - b.tag[0])
-	dstruct = recursion(ranges,dstruct)
+	dstruct = recursion(ranges,dstruct)	
 	return defineDom(ranges,dstruct)
 }
 function recursion(rangs,dstruct){

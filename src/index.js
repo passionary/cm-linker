@@ -23,7 +23,7 @@ export class Component
 {
 	constructor(el,object){
 		this.id = count(name.call(this))
-		let {cname, data, methods, children, hooks, template} = object		
+		let {cname, data, methods, template} = object		
 		this.template = template
 		this.data = data		
 		this.el = document.querySelector(el)

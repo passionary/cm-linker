@@ -24,14 +24,14 @@
 	</style>
 </head>
 <body>	
-	<h1>Hello</h1>
+	<h1>Hello</h1>	
 	<div id="main">		
 		<div id="app"></div>
 		<div id="after"></div>		
 	</div>
 	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
-<script>	
+<script>
 	let data = GlobalApi.register('#app', {
 		cname:'test',
 		template:
@@ -77,17 +77,24 @@
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
 			other:['other1','other2']
-		}		
+		}
 	});
 
 	let data2 = GlobalApi.register('#after', {
-		cname:'something',		
+		cname:'something',
 		template:
 		`<div l-for="test in tests">
 			<p>
 				{{test}}
 			</p>
 		</div>
+		<p>
+		</p>
+		<input l-for="test in tests" />		
+		<select name="some" id="some">
+			<option value="some">
+			</option>
+		</select>
 		<p>
 			{{data}}
 		</p>
@@ -96,31 +103,15 @@
 		</p>
 		<h1>
 			{{data3}}
-		</h1>
-		<ul l-for="new in news">
-			<li l-for="some in somes">
-				<p>
-					{{some}}
-				</p>
-				<p>
-					something
-				</p>
-			</li>
-		</ul>
+		</h1>		
 		`,
 		data:{
-			data:'123',
-			data2:'123',
-			data3:'123',
-			tests: [1,2,3],
-			news: [1,2,3],
-			somes:[3,2,1]
+			data:'data-data-1',
+			data2:'data-data-2',
+			data3:'data-data-3',
+			tests: [9999,99999,999999]
 		}
 	})
-	const arr = []
-	document.onclick = () => {
-		data.news = arr
-	}
 </script>
 </body>
 </html>
