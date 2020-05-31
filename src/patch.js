@@ -25,9 +25,10 @@ export default function patch(array,object)
 			let el = ch[0].node || helpers.create(ch[0].tag[1][0])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
-				el.innerHTML = ch[0].inner ? object[ch[0].inner && ch[0].inner[0]] || '' : ch[0].text || ''
+				el.innerHTML = ch[0].inner ? object.data[ch[0].inner && ch[0].inner[0]] : ch[0].text || ''
 			}
-			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))
+			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))				
+			if(ch[0].events) ch[0].events.forEach(e => el.setAttribute('event',`${e.key},${e.value}`))
 			ch[0].node = el
 			if(pr)
 			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
@@ -37,11 +38,11 @@ export default function patch(array,object)
 					ch[2].forEach(e => {
 						if(Array.isArray(e)){
 							e.forEach(n => {
-								if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+								if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 								ch[0].node.append(n)
 							})
 						}else {
-							if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+							if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 							ch[0].node.append(e)
 						}
 					})
@@ -55,13 +56,13 @@ export default function patch(array,object)
 						if(child.length || child) {
 							if(child.length){
 								for(let j=0;j<child.length; j++){
-									child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
+									child[j].innerHTML = object.data[ch[0].fdata[0]][i]
 								}								
 							}else{
-								child.innerHTML = object[ch[0].fdata[0]][i] || ''
+								child.innerHTML = object.data[ch[0].fdata[0]][i]
 							}
 						}
-						if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 						buf.nodes.push(el)
 					}
 				}
@@ -73,14 +74,14 @@ export default function patch(array,object)
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
 							let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
-							if(child)	child.innerHTML = object[ch[0].fdata[0]][i] || ''
-							if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+							if(child)	child.innerHTML = object.data[ch[0].fdata[0]][i]
+							if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 							a.push(el)
 						}
-						if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 						buf.parent[2].push(a)
 					}else {
-						if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 						buf.parent[2].push(ch[0].node)
 					}
 				}
@@ -95,13 +96,13 @@ export default function patch(array,object)
 						if(child.length || child) {
 							if(child.length){
 								for(let j=0;j<child.length; j++){
-									child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
+									child[j].innerHTML = object.data[ch[0].fdata[0]][i]
 								}								
 							}else{
-								child.innerHTML = object[ch[0].fdata[0]][i] || ''
+								child.innerHTML = object.data[ch[0].fdata[0]][i]
 							}
 						}								
-						if(!ch[0].idata || ch[0].idata && object[ch[0].idata])
+						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 						buf.nodes.push(el)
 					}
 				}
@@ -115,18 +116,18 @@ export default function patch(array,object)
 					if(child.length || child) {
 						if(child.length){
 							for(let j=0;j<child.length; j++){
-								child[j].innerHTML = object[ch[0].fdata[0]][i] || ''
+								child[j].innerHTML = object.data[ch[0].fdata[0]][i]
 							}								
 						}else{
-							child.innerHTML = object[ch[0].fdata[0]][i] || ''
+							child.innerHTML = object.data[ch[0].fdata[0]][i]
 						}
 					}
-					if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
+					if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata]){
 						pr[0].node.appendChild(el)
 					}
 				}
 			}else {
-				if(!ch[0].idata || ch[0].idata && object[ch[0].idata]){
+				if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata]){
 					pr[0].node.appendChild(ch[0].node)
 				}
 			}
@@ -136,7 +137,7 @@ export default function patch(array,object)
 	buffer.filter(e => e[e.length - 1][1] == 0).forEach(el => {
 		if(el.nodes){
 			el.nodes.forEach(node => html.append(node))
-		}else if(!el[el.length - 1][0].idata || el[el.length - 1][0].idata && object[el[el.length - 1][0].idata]) {
+		}else if(!el[el.length - 1][0].idata || el[el.length - 1][0].idata && object.data[el[el.length - 1][0].idata]) {
 			html.appendChild(el[el.length - 1][0].node)
 		}
 	})	

@@ -3,9 +3,9 @@ import linker from './linker'
 import patch from './patch'
 import { makeOutput } from './util'
 
-function main(nodes,data)
+function main(nodes,ctx)
 {
-	return patch(makeOutput(nodes),data)
+	return patch(makeOutput(nodes),ctx)
 }
 
 export default class Render
@@ -13,6 +13,7 @@ export default class Render
 	rules = {
 		tag: '(?<=[\\s]*)(?<=\<)[\\w]+(?=.*>)',
 		ctag: '(?<=\/)[\\w]+',
+		event: '(?<=@)([\\w]+)="([^"]+)(?=")',
 		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
 		lfor: '(?<=for=")[^"]+(?=")',
 		lif: '(?<=if=")[^"]+(?=")',
@@ -35,21 +36,30 @@ export default class Render
 		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
 		this.stags = array(this.template.matchAll(new RegExp(this.rules.stag,'g')))		
 		this.ecount = this.opens.length + this.stags.length
-		this.defineView()		
-		console.log(this.nodes)
-		const html = main(this.nodes,this.data)		
-		this.cm._view = html		
-		this.cm.el.innerHTML = ''
+		this.defineView()
+		const html = main(this.nodes,this.cm)
+		this.cm._view = html
+		this.cm.el.innerHTML = ''		
 		this.cm.el.append(html)
 	}
 	update(){
 		this.reset()
 		this.defineView()
-		const html = main(this.nodes,this.data)
+		const html = main(this.nodes,this.cm)
 		this.cm._view = html
-		this.cm.el.innerHTML = ''
+		this.cm.el.innerHTML = ''		
 		this.cm.el.append(html)
 		return html
+	}
+	loop(){		
+		for(const el of this.cm._view.querySelectorAll('[event')) {
+			const [
+				event,
+				handler
+			] = el.getAttribute('event').split(',')		
+
+			el.addEventListener(event,this.cm.methods[handler].bind(this.cm.proxy))			
+		}
 	}
 	reset(){
 		this.pointer = 0

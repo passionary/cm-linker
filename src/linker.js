@@ -13,11 +13,12 @@ export default function linker (){
 	}else if(!/[^\s]+/.test(str) && this.crtag != 'no'){
 		this.next()
 		linker.call(this)
-	}
+	}	
 	let tag = !/(<input|br|hr)/.test(str) ? str.match(new RegExp(this.rules.tag))	: undefined	
 	let ctag = str.match(new RegExp(this.rules.ctag))
 	let stag = str.match(new RegExp(this.rules.stag))	
 	let attrs	
+	let events
 	let obj = Object.create(null)	
 	if(stag && !this.nodes.find(i => i.tag[0] == this.pointer)){			
 		const expr = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
@@ -26,6 +27,8 @@ export default function linker (){
 		.match(new RegExp(this.rules.lif)) || ['']
 		attrs = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 		.matchAll(new RegExp(this.rules.attr,'g')))
+		events = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
+			.matchAll(this.rules.event))
 		const forExp = expr[0]
 		const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 		const lif = expr2[0]
@@ -33,8 +36,12 @@ export default function linker (){
 			tag:[this.pointer,stag],
 			etag:[this.pointer,stag]
 		}
-		if(attrs){			
+		if(attrs.length){			
 			obj.attrs = attrs.map(e => ({key:e[1],value:e[2]}))
+		}
+		if(events.length){
+			obj.events = events.map(e => ({key:e[1],value:e[2]}))
+			console.log(obj)
 		}
 		if(lif) obj.idata = lif		
 		if(data && key) obj.fdata = [data,this.data[data].length,key]		
@@ -51,7 +58,9 @@ export default function linker (){
 		&& ctag[0] && this.crtag.tag[0] 
 		&& this.crtag.tag[0] == ctag[0] && !this.nodes.find(i => i.etag[0] == this.pointer))
 	{
-		attrs = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id]).matchAll(new RegExp(this.rules.attr,'g')))		
+		attrs = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id]).matchAll(new RegExp(this.rules.attr,'g')))
+		events = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+			.matchAll(this.rules.event))
 		const expr = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
 		.match(new RegExp(this.rules.lfor)) || ['']
 		const expr2 = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
@@ -62,6 +71,9 @@ export default function linker (){
 		obj = {
 			tag:[this.crtag.id,this.crtag.tag],
 			etag:[this.pointer,ctag]
+		}
+		if(events.length){
+			obj.events = events.map(e => ({key:e[1],value:e[2]}))			
 		}
 		if(attrs.length) {
 			obj.attrs = attrs.map(e => ({key:e[1],value:e[2]}))			
