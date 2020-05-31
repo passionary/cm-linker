@@ -1,4 +1,5 @@
 /* global variables */
+let start = Date.now()
 const helpers = {
 	create(tag){
 		return document.createElement(tag)
@@ -27,11 +28,36 @@ let html = document.createElement('div')
 let dom = []
 let ranges
 let template = `
-	<p>
-	</p>
-
-	<p>
-	</p>			
+	<div l-for="o in other">
+				<p>
+				{{o}}
+				</p>				
+			</div>
+			<p>
+				{{data}}
+			</p>
+			<ul l-for="new in news" l-if="data2">
+				<li>
+					<select name="" id="">						
+						<option value="">
+							{{new}}
+						</option>						
+					</select>
+				</li>
+			</ul>
+			<p>
+				{{data2}}
+			</p>
+			<ul l-for="test in tests">			
+				<li l-for="some in news">
+					<p>
+						{{some}}
+					</p>
+					<p>
+						{{test}}
+					</p>				
+				</li>
+			</ul>
 	`
 let object = {
 	data: 'asd',
@@ -53,7 +79,9 @@ const proxy = new Proxy(object, {
 	}	
 })
 html = main()
-console.log(html)
+if(html){
+	console.log(Date.now() - start,html)
+}
 function defineNodes(temp)
 {
 	let rules = {
@@ -133,7 +161,6 @@ function defineNodes(temp)
 		}
 		next()
 	}	
-	console.log(nodes)
 	return nodes
 }
 

@@ -40,11 +40,9 @@
 				{{o}}
 				</p>				
 			</div>
-
 			<p>
 				{{data}}
 			</p>
-
 			<ul l-for="new in news" l-if="data2">
 				<li>
 					<select name="" id="">						
@@ -54,11 +52,9 @@
 					</select>
 				</li>
 			</ul>
-
 			<p>
 				{{data2}}
 			</p>
-
 			<ul l-for="test in tests">			
 				<li l-for="some in news">
 					<p>
@@ -79,39 +75,6 @@
 			other:['other1','other2']
 		}
 	});
-
-	let data2 = GlobalApi.register('#after', {
-		cname:'something',
-		template:
-		`<div l-for="test in tests">
-			<p>
-				{{test}}
-			</p>
-		</div>
-		<p>
-		</p>
-		<input l-for="test in tests" />		
-		<select name="some" id="some">
-			<option value="some">
-			</option>
-		</select>
-		<p>
-			{{data}}
-		</p>
-		<p>
-			{{data2}}
-		</p>
-		<h1>
-			{{data3}}
-		</h1>		
-		`,
-		data:{
-			data:'data-data-1',
-			data2:'data-data-2',
-			data3:'data-data-3',
-			tests: [9999,99999,999999]
-		}
-	})
 </script>
 </body>
 </html>

@@ -6,8 +6,15 @@ export default function linker (){
 	if(typeof this.current == 'undefined' || this.current > this.template.length || this.nodes.length == this.ecount) {
 		return
 	}
-	let str = this.template.slice(this.current,this.nexts[this.pointer])	
-	let tag = !str.match(new RegExp('(<input|br|hr)')) ? str.match(new RegExp(this.rules.tag))	: undefined	
+	let str = this.template.slice(this.current,this.nexts[this.pointer])
+	if(!/[^\s]+/.test(str) && this.crtag == 'no'){
+		this.back()
+		linker.call(this)
+	}else if(!/[^\s]+/.test(str) && this.crtag != 'no'){
+		this.next()
+		linker.call(this)
+	}
+	let tag = !/(<input|br|hr)/.test(str) ? str.match(new RegExp(this.rules.tag))	: undefined	
 	let ctag = str.match(new RegExp(this.rules.ctag))
 	let stag = str.match(new RegExp(this.rules.stag))	
 	let attrs	
@@ -36,11 +43,11 @@ export default function linker (){
 		this.next()
 		linker.call(this)
 	}
-	if(!stag && tag && tag[0] && !this.nodes.find(i => i.tag[0] == this.pointer)){
+	if(tag && tag[0] && !this.nodes.find(i => i.tag[0] == this.pointer)){
 		this.crtag = {id:this.pointer,tag}
 		this.next()
 		linker.call(this)
-	}else if(!stag && ctag && this.crtag && this.crtag.tag 
+	}else if(ctag && this.crtag && this.crtag.tag 
 		&& ctag[0] && this.crtag.tag[0] 
 		&& this.crtag.tag[0] == ctag[0] && !this.nodes.find(i => i.etag[0] == this.pointer))
 	{
