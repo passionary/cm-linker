@@ -11,15 +11,17 @@ function main(nodes,ctx)
 export default class Render
 {
 	rules = {
-		tag: '(?<=[\\s]*)(?<=\<)[\\w]+(?=.*>)',
+		tag: '(?<=[\\s]*\<)[\\w]+(?=.*>)',
 		ctag: '(?<=\/)[\\w]+',
+		id:'(?<=id=")[^"]+(?=")',
 		event: '(?<=@)([\\w]+)="([^"]+)(?=")',
 		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
+		binding: '(?<=l-bind\:)(name|href|value|type|action|placeholder)(?:=")([^"]+)(?=")',
 		lfor: '(?<=l-for=")[^"]+(?=")',
 		class: '(?<=class=")[^"]+(?=")',
 		lif: '(?<=l-if=")[^"]+(?=")',
 		stag:'(?<=[\\s]*\<)(?:input|hr|br)(?=.*\\s?\/>)',
-		attr: '(href|name|value|type|action|placeholder)\=\"([^\=\"]+)',
+		attr: /(href|name|value|type|action|placeholder)(?:\=\")([^\=\"]+)/,
 		innerText: '.+'
 	}
 	nodes = []
@@ -52,11 +54,11 @@ export default class Render
 		this.cm.el = html		
 	}
 	loop(){		
-		for(const el of this.cm.view.querySelectorAll(`[event${this.cm.name}`)) {
+		for(const el of this.cm.view.querySelectorAll('[event')) {
 			const [
 				event,
 				handler
-			] = el.getAttribute(`event${this.cm.name}`).split(',')					
+			] = el.getAttribute('event').split(',')					
 			el.addEventListener(event,this.cm.methods[handler].bind(this.cm.proxy))			
 		}
 	}

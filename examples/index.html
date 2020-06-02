@@ -108,10 +108,7 @@
 				<p>
 				{{o}}
 				</p>				
-			</div>
-			<p>
-				qwerty123
-			</p>
+			</div>			
 			<ul l-for="new in news" l-if="data2">
 				<li>
 					<select name="" id="">						
@@ -173,9 +170,10 @@
 				{{o}}
 				</p>				
 			</div>
-			<p>
+			<a l-bind:href="data">
 				qwerty123
-			</p>
+			</a>
+			<input type="text" id="some" />
 			<ul l-for="new in news" l-if="data2">
 				<li>
 					<select name="" id="">						
@@ -196,7 +194,7 @@
 			<button @click="modifyArr" l-for="test in tests">
 				click
 			</button>
-			<ul l-for="test in tests">
+			<ul l-for="test in tests" id="bottom">
 				<li l-for="some in news">
 					<p>
 						{{some}}
@@ -208,7 +206,7 @@
 			</ul>
 		`,
 		data:{
-			data: true,
+			data: '#bottom',
 			data2:'',
 			data3:'anything-3',
 			tests:['test1','test2','test3!'],

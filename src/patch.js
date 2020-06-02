@@ -27,9 +27,11 @@ export default function patch(array,object)
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
 				el.innerHTML = ch[0].inner ? object.data[ch[0].inner && ch[0].inner[0]] : ch[0].text || ''
 			}
-			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))				
-			if(ch[0].events) ch[0].events.forEach(e => el.setAttribute(`event${object.name}`,`${e.key},${e.value}`))
+			if(ch[0].id) el.id = ch[0].id
+			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))
+			if(ch[0].events) ch[0].events.forEach(e => el.setAttribute('event',`${e.key},${e.value}`))
 			if(ch[0].classes) ch[0].classes.forEach(e => el.classList.add(e))
+			if(ch[0].bindings) ch[0].bindings.forEach(e => el.setAttribute(e.key,object.data[e.value]))
 			ch[0].node = el
 			if(pr)
 			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])

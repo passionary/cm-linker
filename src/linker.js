@@ -14,34 +14,44 @@ export default function linker (){
 		this.next()
 		linker.call(this)
 	}	
-	let tag = !/(<input|br|hr)/.test(str) ? str.match(new RegExp(this.rules.tag))	: undefined	
+	let tag = !/<(?=input|br|hr)/.test(str) ? str.match(new RegExp(this.rules.tag))	: undefined	
 	let ctag = str.match(new RegExp(this.rules.ctag))
 	let stag = str.match(new RegExp(this.rules.stag))
 	let attrs
+	let cls
 	let events
+	let id
+	let bindings	
 	let obj = Object.create(null)
 	if(stag && !this.nodes.find(i => i.tag[0] == this.pointer)){
-		const expr = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
-		.match(new RegExp(this.rules.lfor)) || ['']
-		const expr2 = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
-		.match(new RegExp(this.rules.lif)) || ['']
+		cls = this.template.slice(this.nexts[this.crtag.id - 1],this.nexts[this.crtag.id])
+		.match(this.rules.class)	
 		attrs = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 		.matchAll(new RegExp(this.rules.attr,'g')))
 		events = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 			.matchAll(this.rules.event))
+		bindings = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		.matchAll(new RegExp(this.rules.binding,'g')))
+		const expr = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
+		.match(new RegExp(this.rules.lfor)) || ['']
+		const expr2 = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
+		.match(new RegExp(this.rules.lif)) || ['']
 		const forExp = expr[0]		
 		const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 		const lif = expr2[0]
+		id = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		.match(new RegExp(this.rules.id))
 		obj = {
 			tag:[this.pointer,stag],
 			etag:[this.pointer,stag]
 		}
+		if(id) obj.id = id[0]
+		if(cls) obj.classes = cls[0].split(' ').filter(e => e.length)
 		if(attrs.length){			
 			obj.attrs = attrs.map(e => ({key:e[1],value:e[2]}))
-		}
+		}		
 		if(events.length){
-			obj.events = events.map(e => ({key:e[1],value:e[2]}))
-			console.log(obj)
+			obj.events = events.map(e => ({key:e[1],value:e[2]}))			
 		}
 		if(lif) obj.idata = lif		
 		if(data && key) obj.fdata = [data,this.data[data].length,key]		
@@ -58,11 +68,15 @@ export default function linker (){
 		&& ctag[0] && this.crtag.tag[0] 
 		&& this.crtag.tag[0] == ctag[0] && !this.nodes.find(i => i.etag[0] == this.pointer))
 	{
-		const cls = this.template.slice(this.nexts[this.crtag.id - 1],this.nexts[this.crtag.id])
-		.match(this.rules.class)	
+		id = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		.match(new RegExp(this.rules.id))
+		cls = this.template.slice(this.nexts[this.crtag.id - 1],this.nexts[this.crtag.id])
+		.match(this.rules.class)
 		attrs = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id]).matchAll(new RegExp(this.rules.attr,'g')))
 		events = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
 			.matchAll(this.rules.event))
+		bindings = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		.matchAll(new RegExp(this.rules.binding,'g')))
 		const expr = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
 		.match(new RegExp(this.rules.lfor)) || ['']
 		const expr2 = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
@@ -74,7 +88,9 @@ export default function linker (){
 			tag:[this.crtag.id,this.crtag.tag],
 			etag:[this.pointer,ctag]
 		}
-		if(cls) obj.classes = cls[0].split(' ').filter(e => e.length)		
+		if(id) obj.id = id[0]
+		if(bindings.length) obj.bindings = bindings.map(e => ({key:e[1],value:e[2]}))
+		if(cls) obj.classes = cls[0].split(' ').filter(e => e.length)
 		if(events.length){
 			obj.events = events.map(e => ({key:e[1],value:e[2]}))			
 		}
