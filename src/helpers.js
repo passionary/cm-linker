@@ -24,6 +24,14 @@ export default {
 		return node
 	}
 }
+export function random(){
+	let rstr = ''
+	let str = Date.now().toString()
+	for(let i=0;i<str.length;i++){			
+		rstr += str.charAt(Math.floor(Math.random() * str.length))
+	}
+	return rstr
+}
 export function array(elem){
 	return Array.from(elem)
 }

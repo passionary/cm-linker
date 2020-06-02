@@ -1,7 +1,7 @@
 import helpers from './helpers'
 
 export default function patch(array,object)
-{
+{	
 	let html = helpers.create('div')
 	let i = 0
 	let buf
@@ -28,7 +28,8 @@ export default function patch(array,object)
 				el.innerHTML = ch[0].inner ? object.data[ch[0].inner && ch[0].inner[0]] : ch[0].text || ''
 			}
 			if(ch[0].attrs) ch[0].attrs.forEach(e => el.setAttribute(e.key,e.value))				
-			if(ch[0].events) ch[0].events.forEach(e => el.setAttribute('event',`${e.key},${e.value}`))
+			if(ch[0].events) ch[0].events.forEach(e => el.setAttribute(`event${object.name}`,`${e.key},${e.value}`))
+			if(ch[0].classes) ch[0].classes.forEach(e => el.classList.add(e))
 			ch[0].node = el
 			if(pr)
 			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
@@ -140,7 +141,7 @@ export default function patch(array,object)
 		}else if(!el[el.length - 1][0].idata || el[el.length - 1][0].idata && object.data[el[el.length - 1][0].idata]) {
 			html.appendChild(el[el.length - 1][0].node)
 		}
-	})	
+	})
 	return html
 }
 export function findInner(str,b,e,dir = false){

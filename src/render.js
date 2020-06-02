@@ -15,8 +15,9 @@ export default class Render
 		ctag: '(?<=\/)[\\w]+',
 		event: '(?<=@)([\\w]+)="([^"]+)(?=")',
 		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
-		lfor: '(?<=for=")[^"]+(?=")',
-		lif: '(?<=if=")[^"]+(?=")',
+		lfor: '(?<=l-for=")[^"]+(?=")',
+		class: '(?<=class=")[^"]+(?=")',
+		lif: '(?<=l-if=")[^"]+(?=")',
 		stag:'(?<=[\\s]*\<)(?:input|hr|br)(?=.*\\s?\/>)',
 		attr: '(href|name|value|type|action|placeholder)\=\"([^\=\"]+)',
 		innerText: '.+'
@@ -36,28 +37,26 @@ export default class Render
 		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
 		this.stags = array(this.template.matchAll(new RegExp(this.rules.stag,'g')))		
 		this.ecount = this.opens.length + this.stags.length
-		this.defineView()
+		this.defineView()				
 		const html = main(this.nodes,this.cm)
-		this.cm._view = html
-		this.cm.el.innerHTML = ''		
-		this.cm.el.append(html)
+		this.cm.el.parentNode.replaceChild(html,this.cm.el)
+		this.cm.el = html
+		this.cm.view = html
 	}
-	update(){
+	update(){		
 		this.reset()
 		this.defineView()
 		const html = main(this.nodes,this.cm)
-		this.cm._view = html
-		this.cm.el.innerHTML = ''		
-		this.cm.el.append(html)
-		return html
+		this.cm.el.parentNode.replaceChild(html,this.cm.el)
+		this.cm.view = html
+		this.cm.el = html		
 	}
 	loop(){		
-		for(const el of this.cm._view.querySelectorAll('[event')) {
+		for(const el of this.cm.view.querySelectorAll(`[event${this.cm.name}`)) {
 			const [
 				event,
 				handler
-			] = el.getAttribute('event').split(',')		
-
+			] = el.getAttribute(`event${this.cm.name}`).split(',')					
 			el.addEventListener(event,this.cm.methods[handler].bind(this.cm.proxy))			
 		}
 	}
