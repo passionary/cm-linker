@@ -33,17 +33,13 @@
 	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
 <script>
-	GlobalApi.register('#app', {
+	var some = GlobalApi.register('#app', {
 		cname:'test',
-		template:
-		`<div l-for="o in other">
+		template:`<div l-for="o in other">
 				<p>
 				{{o}}
 				</p>				
-			</div>
-			<p class="some some2   some3">
-				some
-			</p>
+			</div>			
 			<ul l-for="new in news" l-if="data2">
 				<li>
 					<select name="" id="">						
@@ -64,20 +60,7 @@
 			<button @click="modifyArr" l-for="test in tests">
 				click
 			</button>
-			<button @click="some">
-				some
-			</button>
-			<ul l-for="test in tests">
-				<li l-for="some in news">
-					<p>
-						{{some}}
-					</p>
-					<p>
-						{{test}}
-					</p>
-				</li>
-			</ul>
-		`,
+			`,		
 		data:{
 			data: true,
 			data2:false,
@@ -91,13 +74,7 @@
 				this.data2 = !this.data2
 			},
 			modifyArr(){
-				if(this.data){
-					this.tests = [1,2,3]
-					this.data = false
-				}else{
-					this.tests = ['test1','test2','test3!']
-					this.data = true
-				}
+				this.other.push('HELLO!!!!!!!')
 			}
 		}
 	})
@@ -162,19 +139,19 @@
 			}
 		}
 	})
-	GlobalApi.register('.middle', {
+	let data = GlobalApi.register('.middle', {
 		cname:'test',
 		template:
 		`<div l-for="o in other">
 				<p>
-				{{o}}
+				{{data3}}
 				</p>				
 			</div>
 			<a l-bind:href="data">
-				qwerty123
+				{{data}}
 			</a>
-			<input type="text" id="some" />
-			<ul l-for="new in news" l-if="data2">
+			<input type="text" l-bind:value="data"/>
+			<ul l-for="new in tests" l-if="data2">
 				<li>
 					<select name="" id="">						
 						<option value="">
@@ -185,14 +162,14 @@
 			</ul>
 			<p l-if="data2">
 				<p>
-					!!!
+					{{data2}}
 				</p>
 				<p>
 				{{data2}}
 				</p>				
 			</p>
-			<button @click="modifyArr" l-for="test in tests">
-				click
+			<button @click="great">
+				попробовать
 			</button>
 			<ul l-for="test in tests" id="bottom">
 				<li l-for="some in news">
@@ -206,15 +183,25 @@
 			</ul>
 		`,
 		data:{
-			data: '#bottom',
-			data2:'',
+			data: false,
+			data2:'some data-3',
 			data3:'anything-3',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
 			other:['other1','other2']
 		},
 		methods:{
-			some(){
+			great(){
+				this.data = !this.data
+				if(this.data){
+					for(let i=10;i>=0;i--){
+						this.tests[i] = i
+					}
+				}else{
+					for(let i=0;i<=10;i++){
+						this.tests[i] = 10 - i
+					}
+				}
 			},
 			modifyArr(){
 				if(this.data){

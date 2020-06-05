@@ -1,8 +1,8 @@
-import { Component } from './index'
+import Component from './index'
 
 export default class GlobalApi
 {
-	static register = (el,data) => {		
+	static register = (el = null,data = null) => {		
 		let cm = new Component( el, data )
 		
 		return cm.proxy

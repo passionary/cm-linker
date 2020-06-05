@@ -54,7 +54,7 @@ export default function patch(array,object)
 					buf.nodes = []
 					for(let i=0;i<ch[0].fdata[1];i++){
 						const el = ch[0].node.cloneNode(true)								
-						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
 						child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
 						if(child.length || child) {
 							if(child.length){
@@ -76,7 +76,7 @@ export default function patch(array,object)
 					if(ch[0].fdata){
 						for(let i=0;i<ch[0].fdata[1];i++){
 							const el = ch[0].node.cloneNode(true)
-							let child = el.querySelector(`[data-${ch[0].fdata[2]}`)
+							let child = el.querySelector(`[data-${ch[0].fdata[2]}]`)
 							if(child)	child.innerHTML = object.data[ch[0].fdata[0]][i]
 							if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 							a.push(el)
@@ -94,7 +94,7 @@ export default function patch(array,object)
 					buf.nodes = []
 					for(let i=0;i<ch[0].fdata[1];i++){
 						const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1][0])
-						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
 						child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
 						if(child.length || child) {
 							if(child.length){
@@ -114,7 +114,7 @@ export default function patch(array,object)
 			if(ch[0].fdata){
 				for(let i=0;i<ch[0].fdata[1];i++){
 					const el = ch[0].node.cloneNode(true)
-					let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
+					let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
 					child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
 					if(child.length || child) {
 						if(child.length){

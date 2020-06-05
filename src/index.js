@@ -1,36 +1,39 @@
 import Render from './render'
-import { count, name, array, random } from './helpers'
+import { count, name, array } from './helpers'
 import GlobalApi from './global_api'
+import { reactivate } from './reactivate'
+import { warn } from './warn'
+import { error } from './error'
 
 window.GlobalApi = GlobalApi
 
-const reactivate = function (render){	
-	this.proxy = new Proxy(render.data, {
-		get(target, prop){
-			return Reflect.get(target, prop)
-		},
-	  set(target, prop, val) {
-	  	target[prop] = val
-
-	  	render.update()
-	  	render.loop()
-
-	  	return true
-	  }
-	})
-
-	render.loop()
-}
-
-export class Component
+export default class Component
 {
 	constructor(el,object){
+		if(!el || !object) {
+			error('no required parametr or required parametrs')
+			return
+		}
 		this.id = count(name.call(this))
-		let {cname, data, methods, template} = object
-		this.template = template		
+		let { data, methods, template } = object		
+		this.template = template
+		this.data = data
 		this.methods = methods
-		this.data = data		
+		if(!el || !document.querySelector(el)) {
+			error('invalid selector string or no such node')
+			return
+		}
+		if(!template) {
+			warn('instance should contain a template value')
+			return
+		}
+		if(!data) {
+			warn('instance should contain a data value')
+			return
+		}
 		this.el = document.querySelector(el)
-		reactivate.call(this,new Render(this,template))
-	}	
+		this.render = new Render(this)
+		this.proxy = reactivate(this.render)
+		this.render.loop()
+	}
 }

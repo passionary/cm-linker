@@ -13,7 +13,7 @@ export default function linker (){
 	}else if(!/[^\s]+/.test(str) && this.crtag != 'no'){
 		this.next()
 		linker.call(this)
-	}	
+	}
 	let tag = !/<(?=input|br|hr)/.test(str) ? str.match(new RegExp(this.rules.tag))	: undefined	
 	let ctag = str.match(new RegExp(this.rules.ctag))
 	let stag = str.match(new RegExp(this.rules.stag))
@@ -30,7 +30,7 @@ export default function linker (){
 		.matchAll(new RegExp(this.rules.attr,'g')))
 		events = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 			.matchAll(this.rules.event))
-		bindings = array(this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		bindings = array(this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 		.matchAll(new RegExp(this.rules.binding,'g')))
 		const expr = this.template.slice(this.nexts[this.pointer-1],this.nexts[this.pointer])
 		.match(new RegExp(this.rules.lfor)) || ['']
@@ -47,6 +47,7 @@ export default function linker (){
 		}
 		if(id) obj.id = id[0]
 		if(cls) obj.classes = cls[0].split(' ').filter(e => e.length)
+		if(bindings.length) obj.bindings = bindings.map(e => ({key:e[1],value:e[2]}))
 		if(attrs.length){			
 			obj.attrs = attrs.map(e => ({key:e[1],value:e[2]}))
 		}		
