@@ -28,37 +28,7 @@ let html = document.createElement('div')
 let dom = []
 let ranges
 let template = `
-	<div l-for="o in other">
-				<p>
-				{{o}}
-				</p>				
-			</div>
-			<p>
-				{{data}}
-			</p>
-			<ul l-for="new in news" l-if="data2">
-				<li>
-					<select name="" id="">						
-						<option value="">
-							{{new}}
-						</option>						
-					</select>
-				</li>
-			</ul>
-			<p>
-				{{data2}}
-			</p>
-			<ul l-for="test in tests">			
-				<li l-for="some in news">
-					<p>
-						{{some}}
-					</p>
-					<p>
-						{{test}}
-					</p>				
-				</li>
-			</ul>
-	`
+	<div l-for="o in other"><p>{{o}}</p></div><p>{{data}}</p><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p>{{data2}}</p><ul l-for="test in tests"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>`
 let object = {
 	data: 'asd',
 	data2:'123',
@@ -79,9 +49,7 @@ const proxy = new Proxy(object, {
 	}	
 })
 html = main()
-if(html){
-	console.log(Date.now() - start,html)
-}
+console.log(html)
 function defineNodes(temp)
 {
 	let rules = {
@@ -96,71 +64,75 @@ function defineNodes(temp)
 	let pointer = 0
 	let current = 0
 	let iter = 0
-
-	function next(){
-		current = nexts[pointer++]
-	}
-	let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g')))
+	
+	let sopens = Array.from(temp.matchAll(new RegExp(rules.tag,'g'))).map(e => {e.open = true; return e})
 	let scloses = Array.from(temp.matchAll(new RegExp(rules.cTag,'g')))	
+	let entities = sopens.concat(scloses).sort((a,b) => a.index - b.index)
+	console.log(entities)
 	if(sopens.length != scloses.length) throw Error('invalid html in template')
-	let nodes = []
+	let nodes = []	
 	let crtag = ''
 	function back(){
 		current = nexts[pointer - 2]
 		pointer--
 	}
-	function findInner(str,b,e,dir = false){								
+	function findInner(b,e,dir = false){								
 		let txt
-		for(let i=b;i<e;i++){
-			if(temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.tag) || temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.cTag)))) 
-			break
-			txt = dir ? 
-				temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner))
-			:!temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.inner)) 
-			&&temp.slice(nexts[i],nexts[i+1]).match(new RegExp(rules.innerText))
-			if(txt) break										
-		}
+		if(template.slice(b,e).match(new RegExp(rules.tag)) || template.slice(b,e).match(new RegExp(rules.cTag))) return false
+		txt = dir ? 
+			template.slice(b,e).match(new RegExp(rules.inner))
+		:!template.slice(b,e).match(new RegExp(rules.inner)) 
+		&&template.slice(b,e).match(new RegExp(rules.innerText))
 		return txt
 	}
+
 	let inner
 	let text
-	while(current < temp.length && nodes.length != sopens.length){
-		iter++		
-		let str = temp.slice(current,nexts[pointer])
-		let tag = str.match(new RegExp(rules.tag))
-		let cTag = str.match(new RegExp(rules.cTag))				
-		if(tag && tag[0] && !nodes.find(i => i.tag[0] == pointer)){
-			crtag = {id:pointer,tag}
-			next()
+	const find = (id) => {
+		let c
+		for(let i=id;i<template.length;i++){
+			c = i
+			if(template[i] == '>') break
+		}
+		return c
+	}
+	while(pointer < entities.length - 1 || nodes.length != sopens.length){
+		if(pointer <= 0) crtag = ''
+		const entity = entities[pointer]
+		if(entity.open && !nodes.find(e => e.tag[0] == entity.index)){
+			crtag = entity
+			pointer++
 			continue
-		}else	if(cTag && crtag && crtag.tag && cTag[0] && crtag.tag[0] && crtag.tag[0] == cTag[0] && !nodes.find(i => i.etag[0] == pointer)){
-			const expr = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lfor)) || ['']
-			const expr2 = temp.slice(nexts[crtag.id-1],nexts[crtag.id]).match(new RegExp(rules.lif)) || ['']
+		}else	if(crtag && !entity.open && crtag[0] && entity[0] && entity[0] == crtag[0] && !nodes.find(e => e.etag[0] == entity.index)){
+			const end = find(crtag.index)
+			const expr = temp.slice(crtag.index,end).match(new RegExp(rules.lfor)) || ['']
+			const expr2 = temp.slice(crtag.index,end).match(new RegExp(rules.lif)) || ['']
 			const lif = expr2[0]
 			const forExp = expr[0]
 			const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 			let obj = {
-				tag:[crtag.id,crtag.tag],
-				etag:[pointer,cTag],
-			}					
-			if(inner = findInner(temp,crtag.id,pointer-1,true)) {
+				tag:[crtag.index,crtag[0]],
+				etag:[entity.index,entity[0]],
+			}
+			if(inner = findInner(crtag.index,entity.index,true)) {
 				obj.inner = inner
 			}
-			if (text = findInner(temp,crtag.id,pointer-1)) {
+			if (text = findInner(crtag.index,entity.index)) {
 				obj.text = text[0].trim()
 			}
 			if(lif) obj.idata = lif
 			if(data && key) obj.fdata = [data,object[data].length,key]
-			nodes.unshift(obj)					
-			crtag = 'no'					
-			next()
+			nodes.unshift(obj)
+			crtag = 'no'
+			pointer++
 			continue
 		}else if(crtag === 'no'){
-			back()
+			pointer--
 			continue
 		}
-		next()
-	}	
+		pointer++
+	}
+	console.log(nodes)
 	return nodes
 }
 
@@ -186,14 +158,14 @@ function render(array)
 		while(true){
 			const ch = buf[i]
 			const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
-			let el = ch[0].node || helpers.create(ch[0].tag[1][0])
+			let el = ch[0].node || helpers.create(ch[0].tag[1])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
 				el.innerHTML = ch[0].inner ? object[ch[0].inner && ch[0].inner[0]] || '' : ch[0].text || ''
 			}					
 			ch[0].node = el
 			if(pr)
-			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
+			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1])
 			if(!pr && buf.length > 1) {
 				const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
 				if(ch[2].length) {
@@ -230,7 +202,7 @@ function render(array)
 				}
 				if(parent) {
 					buf.parent = parent[parent.length - 1]
-					buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])
+					buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1])
 					let a = []
 					if(ch[0].fdata){
 						for(let i=0;i<ch[0].fdata[1];i++){
@@ -252,7 +224,7 @@ function render(array)
 				if(ch[0].fdata && ch[1] == 0){
 					buf.nodes = []
 					for(let i=0;i<ch[0].fdata[1];i++){
-						const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1][0])
+						const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1])
 						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}`)
 						child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
 						if(child.length || child) {

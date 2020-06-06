@@ -22,7 +22,7 @@ export default function patch(array,object)
 		while(true){
 			const ch = buf[i]			
 			const pr = buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
-			let el = ch[0].node || helpers.create(ch[0].tag[1][0])
+			let el = ch[0].node || helpers.create(ch[0].tag[1])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
 				el.innerHTML = ch[0].inner ? object.data[ch[0].inner && ch[0].inner[0]] : ch[0].text || ''
@@ -34,7 +34,7 @@ export default function patch(array,object)
 			if(ch[0].bindings) ch[0].bindings.forEach(e => el.setAttribute(e.key,object.data[e.value]))
 			ch[0].node = el
 			if(pr)
-			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1][0])
+			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1])
 			if(!pr && buf.length > 1) {
 				const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
 				if(ch[2].length) {
@@ -71,7 +71,7 @@ export default function patch(array,object)
 				}
 				if(parent) {
 					buf.parent = parent[parent.length - 1]
-					buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1][0])
+					buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1])
 					let a = []
 					if(ch[0].fdata){
 						for(let i=0;i<ch[0].fdata[1];i++){
@@ -93,7 +93,7 @@ export default function patch(array,object)
 				if(ch[0].fdata && ch[1] == 0){
 					buf.nodes = []
 					for(let i=0;i<ch[0].fdata[1];i++){
-						const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1][0])
+						const el = ch[0].node ? ch[0].node.cloneNode(true) : helpers.create(ch[0].tag[1])
 						let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
 						child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
 						if(child.length || child) {
@@ -146,17 +146,13 @@ export default function patch(array,object)
 	})
 	return html
 }
-export function findInner(str,b,e,dir = false){
+
+export function findInner(b,e,dir = false){
 	let txt
-	for(let i=b;i<e;i++){
-		if(str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.tag) 
-		|| str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.cTag))))
-		break
-		txt = dir ? 
-			str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner))
-		:!str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.inner)) 
-		&&str.slice(this.nexts[i],this.nexts[i+1]).match(new RegExp(this.rules.innerText))
-		if(txt) break
-	}
+	if(this.template.slice(b,e).match(new RegExp(this.rules.tag))) return false
+	txt = dir ? 
+		this.template.slice(b,e).match(new RegExp(this.rules.inner))
+	:!this.template.slice(b,e).match(new RegExp(this.rules.inner))
+	&&this.template.slice(b,e).match(new RegExp(this.rules.innerText))
 	return txt
 }

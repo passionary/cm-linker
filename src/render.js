@@ -27,7 +27,7 @@ export default class Render
 		lif: '(?<=l-if=")[^"]+(?=")',
 		stag:`(?<=[\\s]*\<)(?:${stags.join('|')})(?=.*\\s?\/>)`,
 		attr: /(href|name|value|type|action|placeholder)(?:\=\")([^\=\"]+)/,
-		innerText: '.+'
+		innerText: '(?<=\>)[\\w\\s]*.+(?=[\\w\\s]*<)'
 	}
 	nodes = []
 	current = 0
@@ -41,15 +41,18 @@ export default class Render
 		this.nexts = array(this.template.matchAll(/\n/g)).map(i => i.index + 1)
 		this.nexts.unshift(0)
 		this.opens = array(this.template.matchAll(new RegExp(this.rules.tag,'g')))
-		.filter(e => !/(input|hr|br)/.test(e[0]))		
+		.filter(e => !/(input|hr|br)/.test(e[0])).map(e => {e.open = true; return e})
 		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
 		this.stags = array(this.template.matchAll(new RegExp(this.rules.stag,'g')))
+		.map(e => {e.stag = true; return e})
+		this.entities = this.opens.concat(this.closes,this.stags).sort((a,b) => a.index - b.index)
 		this.ecount = this.opens.length + this.stags.length
 		this.defineView()
+		console.log(this.nodes)
 		if(this.nodes.length != this.opens.length + this.stags.length || this.opens.length != this.closes.length) error('invalid html syntaxis')
 		const html = main(this.nodes,this.cm)
 		this.cm.el.parentNode.replaceChild(html,this.cm.el)
-		this.cm.el = html		
+		this.cm.el = html
 	}
 	update(){
 		this.reset()

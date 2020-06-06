@@ -35,35 +35,12 @@
 <script>
 	var some = GlobalApi.register('#app', {
 		cname:'test',
-		template:`<div l-for="o in other">
-				<p>
-				{{o}}
-				</p>				
-			</div>			
-			<ul l-for="new in news" l-if="data2">
-				<li>
-					<select name="" id="">						
-						<option value="">
-							{{new}}
-						</option>						
-					</select>
-				</li>
-			</ul>
-			<p l-if="data2">
-				<p>
-					!!!
-				</p>
-				<p>
-				{{data2}}
-				</p>				
-			</p>
-			<button @click="modifyArr" l-for="test in tests">
-				click
-			</button>
+		template:`
+<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>!!!</p><p>{{data2}}</p></p><button @click="modifyArr" l-for="test in tests">click</button>
 			`,		
 		data:{
 			data: true,
-			data2:false,
+			data2:true,
 			data3:'anything-3',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
@@ -81,41 +58,8 @@
 	GlobalApi.register('#after', {
 		cname:'test',
 		template:
-		`<div l-for="o in other">
-				<p>
-				{{o}}
-				</p>				
-			</div>			
-			<ul l-for="new in news" l-if="data2">
-				<li>
-					<select name="" id="">						
-						<option value="">
-							{{new}}
-						</option>						
-					</select>
-				</li>
-			</ul>
-			<p l-if="data2">
-				<p>
-					!!!
-				</p>
-				<p>
-				{{data2}}
-				</p>				
-			</p>
-			<button @click="modifyArr" l-for="test in tests">
-				click
-			</button>
-			<ul l-for="test in tests">
-				<li l-for="some in news">
-					<p>
-						{{some}}
-					</p>
-					<p>
-						{{test}}
-					</p>
-				</li>
-			</ul>
+		`
+<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>!!!</p><p>{{data2}}</p></p><button @click="modifyArr" l-for="test in tests">click</button><ul l-for="test in tests"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
 		`,
 		data:{
 			data: true,
@@ -142,45 +86,8 @@
 	let data = GlobalApi.register('.middle', {
 		cname:'test',
 		template:
-		`<div l-for="o in other">
-				<p>
-				{{data3}}
-				</p>				
-			</div>
-			<a l-bind:href="data">
-				{{data}}
-			</a>
-			<input type="text" l-bind:value="data"/>
-			<ul l-for="new in tests" l-if="data2">
-				<li>
-					<select name="" id="">						
-						<option value="">
-							{{new}}
-						</option>						
-					</select>
-				</li>
-			</ul>
-			<p l-if="data2">
-				<p>
-					{{data2}}
-				</p>
-				<p>
-				{{data2}}
-				</p>				
-			</p>
-			<button @click="great">
-				попробовать
-			</button>
-			<ul l-for="test in tests" id="bottom">
-				<li l-for="some in news">
-					<p>
-						{{some}}
-					</p>
-					<p>
-						{{test}}
-					</p>
-				</li>
-			</ul>
+		`
+<div l-for="o in other"><p>{{data3}}</p></div><a l-bind:href="data">{{data}}</a><ul l-for="new in tests" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>{{data2}}</p><p>{{data2}}</p></p><button @click="great">попробовать</button><ul l-for="test in tests" id="bottom"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
 		`,
 		data:{
 			data: false,
