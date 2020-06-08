@@ -45,7 +45,6 @@ export default class Render
 		this.entities = this.opens.concat(this.closes,this.stags).sort((a,b) => a.index - b.index)
 		this.ecount = this.opens.length + this.stags.length
 		this.defineView()
-		console.log(this.nodes.length,this.entities.length,this.stags.length,this.closes.length)
 		if(this.nodes.length != this.opens.length + this.stags.length || this.opens.length != this.closes.length) error('invalid html syntaxis')
 		const html = main(this.nodes,this.cm)
 		this.cm.el.parentNode.replaceChild(html,this.cm.el)

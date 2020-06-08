@@ -36,7 +36,7 @@
 	var some = GlobalApi.register('#app', {
 		cname:'test',
 		template:`
-		<div l-for="test in news"><input type="text" /><p><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p><p><select><option>{{data3}}</option></select><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p></div><div><main l-for="o in tests"><select name="" id="" l-for="b in tests"><option value=""><ul><li l-for="test in news"><p><em>{{test}}</em></p><p><span>{{b}}</span></p><p><b>{{o}}</b></p></li></ul></option></select></main></div><aside><nav><section><select name="" id=""><option value=""><ul><span l-for="k in tests"><p>{{k}}</p></span><li><p>{{data}}</p></li><nav l-for="d in other"><ul><li><p>{{d}}</p><p>{{d}}</p></li></ul></nav><p><div>hello!</div></p></ul></option></select></section></nav></aside>`,
+		<div l-for="test in news"><input type="text" /><p><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p><p><select><option>{{data3}}</option></select><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p></div><div><main l-for="o in tests"><select name="" id="" l-for="b in tests"><option value=""><ul><li l-for="test in news"><p><em>{{test}}</em></p><p><span>{{b}}</span></p><p><b>{{o}}</b></p></li></ul></option></select></main></div><aside><nav><section><select name="" id=""><option value=""><ul><span l-for="s in tests"><p>{{data3}}</p></span><p><div>hello!</div></p><li><p>{{data}}</p></li><nav l-for="s in news"><ul><li><p>{{data2}}</p><p>{{data}}</p></li></ul></nav></ul></option></select></section></nav></aside>`,
 		data:{
 			data: false,
 			data2:true,
@@ -58,7 +58,7 @@
 		cname:'test',
 		template:
 		`
-<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul>
+<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id="" l-if="data"><option value="">{{new}}</option></select></li></ul>
 <p l-if="data2">
 <p>
 	<input type="text" value="test" />

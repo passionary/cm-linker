@@ -1,15 +1,12 @@
 import helpers, { array } from './helpers'
 
-const clearNodes = (p,nodes) => {
-	array(nodes).forEach(e => p.removeChild(e))
-}
+const clearNodes = (p,nodes) => array(nodes).forEach(e => p.removeChild(e))
 
 export default function patch(array,object)
 {	
 	let html = helpers.create('div')
 	let i = 0
 	let buf
-	let down = false
 	let buffer = []
 	while(array.length){
 		const id = array.findIndex((i,ind,arr) => arr[ind+1] && arr[ind+1][1] - i[1] < 0 || arr[ind+1] && arr[ind+1][1] == 0 && arr[ind][1] == 0)
@@ -28,15 +25,7 @@ export default function patch(array,object)
 			const ch = buf[i]
 			if(!ch) break
 			let pro
-			let pr = buf[i+1] && buf[i+1][0].tag[0] < ch[0].tag[0] && buf[i+1][0].etag[0] > ch[0].etag[0] ? buf[i+1] : buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
-			if(!pr && i == buf.length - 1) {
-				for(let index = 0; index < buffer.length;index++){
-					const e = buffer[index]
-					pro = e.find(el => ch[1] - el[1] == 1 && ch[0].tag[0] > el[0].tag[0] && ch[0].etag[0] < el[0].etag[0])
-					if(pro) break
-				}
-			}
-			if(pro) pr = pro
+			let pr = buf[i+1] && buf[i+1][0].tag[0] < ch[0].tag[0] && buf[i+1][0].etag[0] > ch[0].etag[0] ? buf[i+1] : buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])			
 			let el = ch[0].node || helpers.create(ch[0].tag[1])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
@@ -50,22 +39,8 @@ export default function patch(array,object)
 			ch[0].node = el
 			if(pr)
 			pr[0].node = pr[0].node || helpers.create(pr[0].tag[1])
-			if(!pr) {
-				const parent = buffer.find(e => ch[1] - e[e.length - 1][1] == 1 && ch[0].tag[0] > e[e.length - 1][0].tag[0] && ch[0].etag[0] < e[e.length - 1][0].etag[0])
-				if(ch[2].length) {
-					ch[2].forEach(e => {
-						if(Array.isArray(e)){
-							e.forEach(n => {
-								if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
-								ch[0].node.append(n)
-							})
-						}else {
-							if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
-							ch[0].node.append(e)
-						}
-					})
-				}
-				if(ch[0].fdata && ch[1] == 0){
+			if(!pr && ch[1] == 0) {
+				if(ch[0].fdata){
 					buf.nodes = []
 					for(let i=0;i<ch[0].fdata[1];i++){
 						const el = ch[0].node.cloneNode(true)								
@@ -83,133 +58,61 @@ export default function patch(array,object)
 						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
 						buf.nodes.push(el)
 					}
-				}
-				if(parent) {
-					buf.parent = parent[parent.length - 1]
-					buf.parent[0].node = buf.parent[0].node || helpers.create(buf.parent[0].tag[1])
-					let a = []
-					if(ch[0].fdata){
-						for(let i=0;i<ch[0].fdata[1];i++){
-							const el = ch[0].node.cloneNode(true)
-							let child = el.querySelector(`[data-${ch[0].fdata[2]}]`)
-							if(child)	child.innerHTML = object.data[ch[0].fdata[0]][i]
-							if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
-							a.push(el)
-						}
-						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
-						buf.parent[2].push(a)
-					}else {
-						if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
-						buf.parent[2].push(ch[0].node)
-					}
-				}
+				}			
 				break
 			}
-			if(!pr) break
-			// if(ch[0].fdata){
-			// 	// const children = merge.filter(e => e[1] - pr[1] == 1 
-			// 	// 	&& pr[0].tag[0] < e[0].tag[0] 
-			// 	// 	&& pr[0].etag[0] > e[0].etag[0] && e[0].tag[0] < ch[0].tag[0])
-
-			// 	if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata]){
-			// 		const children = merge.filter(e => e[1] - pr[1] == 1 
-			// 			&& pr[0].tag[0] < e[0].tag[0] 
-			// 			&& pr[0].etag[0] > e[0].etag[0])
-			// 		const nchildren = children.filter(e => e[0].node).sort((a,b) => a[0].tag[0] - b[0].tag[0])
-			// 		if(children.length == nchildren.length && children.length > 1) {
-			// 			clearNodes(pr[0].node,pr[0].node.children)
-			// 			nchildren.forEach(el => {
-			// 				if(el[0].fdata)	{
-			// 					for(let idx = 0;idx < el[0].fdata[1];idx++){
-			// 						const node = el[0].node.cloneNode(true)
-			// 						let child = node.querySelectorAll(`[data-${el[0].fdata[2]}]`)
-			// 						child = child.length ? child : node.hasAttribute(`data-${el[0].fdata[2]}`) && node
-			// 						if(child.length || child) {
-			// 							if(child.length){
-			// 								for(let j=0;j<child.length; j++){								
-			// 									child[j].innerHTML = object.data[ch[0].fdata[0]][idx]
-			// 								}								
-			// 							}else{
-			// 								child.innerHTML = object.data[ch[0].fdata[0]][idx]
-			// 							}
-			// 						}
-			// 					}
-			// 				}else{
-			// 					pr[0].node.appendChild(el[0].node)
-			// 				}
-			// 			})
-			// 		}else pr[0].node.appendChild(el)
-			// 		// if(!children.length && pr[0].node.children.length && reversed) {
-			// 		// 	pr[0].node.insertBefore(el,pr[0].node.children[0])
-			// 		// }else pr[0].node.appendChild(el)
-			// 	}
-
-
-			// 	// for(let i=0;i<ch[0].fdata[1];i++){
-			// 	// 	const el = ch[0].node.cloneNode(true)
-			// 	// 	let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
-			// 	// 	child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
-			// 	// 	if(child.length || child) {
-			// 	// 		if(child.length){
-			// 	// 			for(let j=0;j<child.length; j++){								
-			// 	// 				child[j].innerHTML = obj[i]
-			// 	// 			}								
-			// 	// 		}else{
-			// 	// 			child.innerHTML = obj[i]
-			// 	// 		}
-			// 	// 	}					
-			// 	// }				
-			// }else {				
-				if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata]){
-					const children = merge.filter(e => e[1] - pr[1] == 1 
-						&& pr[0].tag[0] < e[0].tag[0]
-						&& pr[0].etag[0] > e[0].etag[0])
-					const nchildren = children.filter(e => e[0].node).sort((a,b) => a[0].tag[0] - b[0].tag[0])
-					if(children.length == nchildren.length && children.length > 1) {
-						if(children.length == 4) console.log(children)
-						clearNodes(pr[0].node,pr[0].node.children)
-						nchildren.forEach(el => {
-							if(el[0].fdata)	{
-								for(let idx = 0;idx < el[0].fdata[1];idx++){
-									const node = el[0].node.cloneNode(true)
-									let child = node.querySelectorAll(`[data-${el[0].fdata[2]}]`)
-									child = child.length ? child : node.hasAttribute(`data-${el[0].fdata[2]}`) && node
-									if(child.length || child) {
-										if(child.length){
-											for(let j=0;j<child.length; j++){								
-												child[j].innerHTML = object.data[el[0].fdata[0]][idx]
-											}								
-										}else{
-											child.innerHTML = object.data[el[0].fdata[0]][idx]
-										}
-									}
-									pr[0].node.appendChild(node)
-								}
-							}else{
-								pr[0].node.appendChild(el[0].node)
-							}
-						})
-					}else if(ch[0].fdata){
-						for(let i=0;i<ch[0].fdata[1];i++){
-							const el = ch[0].node.cloneNode(true)
-							let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
-							child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el							
+			if(!pr) break			
+			const children = merge.filter(e => e[1] - pr[1] == 1 
+				&& pr[0].tag[0] < e[0].tag[0]
+				&& pr[0].etag[0] > e[0].etag[0] && !e.iterated)
+			const nchildren = children.filter(e => e[0].node).sort((a,b) => a[0].tag[0] - b[0].tag[0])
+			if(children.length == nchildren.length && children.length > 1) {
+				clearNodes(pr[0].node,pr[0].node.children)
+				nchildren.forEach(el => {
+					el['iterated'] = true
+					if(el[0].fdata)	{
+						for(let idx = 0;idx < el[0].fdata[1];idx++){
+							const node = el[0].node.cloneNode(true)
+							let child = node.querySelectorAll(`[data-${el[0].fdata[2]}]`)
+							child = child.length ? child : node.hasAttribute(`data-${el[0].fdata[2]}`) && node
 							if(child.length || child) {
 								if(child.length){
 									for(let j=0;j<child.length; j++){								
-										child[j].innerHTML = object.data[ch[0].fdata[0]][i]
+										child[j].innerHTML = object.data[el[0].fdata[0]][idx]
 									}								
 								}else{
-									child.innerHTML = object.data[ch[0].fdata[0]][i]
+									child.innerHTML = object.data[el[0].fdata[0]][idx]
 								}
 							}
-							pr[0].node.appendChild(el)
+							if(!el[0].idata || el[0].idata && object.data[el[0].idata])
+							pr[0].node.appendChild(node)
 						}
 					}else{
-						pr[0].node.appendChild(ch[0].node)
+						if(!el[0].idata || el[0].idata && object.data[el[0].idata])
+						pr[0].node.appendChild(el[0].node)
 					}
+				})
+			}else if(ch[0].fdata){
+				for(let i=0;i<ch[0].fdata[1];i++){
+					const el = ch[0].node.cloneNode(true)
+					let child = el.querySelectorAll(`[data-${ch[0].fdata[2]}]`)
+					child = child.length ? child : el.hasAttribute(`data-${ch[0].fdata[2]}`) && el
+					if(child.length || child) {
+						if(child.length){
+							for(let j=0;j<child.length; j++){								
+								child[j].innerHTML = object.data[ch[0].fdata[0]][i]
+							}								
+						}else{
+							child.innerHTML = object.data[ch[0].fdata[0]][i]
+						}
+					}
+					if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
+					pr[0].node.appendChild(el)
 				}
-			// }
+			}else{
+				if(!ch[0].idata || ch[0].idata && object.data[ch[0].idata])
+				pr[0].node.appendChild(ch[0].node)
+			}
 			i++
 		}
 	}
