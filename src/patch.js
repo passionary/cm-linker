@@ -17,15 +17,18 @@ export default function patch(array,object)
 		buffer.push(array.slice(0,id+1).sort((a,b) => b[1] - a[1]))
 		array.splice(0,id+1)
 	}
-	buffer = buffer.sort((a,b) => b[b.length - 1][1] - a[a.length - 1][1])
+	buffer = buffer.sort((a,b) =>
+		b[b.length - 1][1] == a[a.length - 1][1]
+		? a[a.length - 1][0].tag[0] - b[b.length - 1][0].tag[0]
+		: b[b.length - 1][1] - a[a.length - 1][1]
+	)
 	const merge = buffer.reduce((p,e) => p.concat(e),[])
 	for(let buf of buffer){
 		let i = 0
-		while(true){
+		while(true){			
 			const ch = buf[i]
 			if(!ch) break
-			let pro
-			let pr = buf[i+1] && buf[i+1][0].tag[0] < ch[0].tag[0] && buf[i+1][0].etag[0] > ch[0].etag[0] ? buf[i+1] : buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])			
+			let pr = buf[i+1] && buf[i+1][0].tag[0] < ch[0].tag[0] && buf[i+1][0].etag[0] > ch[0].etag[0] ? buf[i+1] : buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
 			let el = ch[0].node || helpers.create(ch[0].tag[1])
 			if(ch[0].inner || ch[0].text){
 				if(ch[0].inner) el.setAttribute(`data-${ch[0].inner[0]}`,'')
@@ -61,15 +64,17 @@ export default function patch(array,object)
 				}			
 				break
 			}
-			if(!pr) break			
+			if(!pr) {
+				i++
+				continue
+			}
 			const children = merge.filter(e => e[1] - pr[1] == 1 
 				&& pr[0].tag[0] < e[0].tag[0]
-				&& pr[0].etag[0] > e[0].etag[0] && !e.iterated)
+				&& pr[0].etag[0] > e[0].etag[0])
 			const nchildren = children.filter(e => e[0].node).sort((a,b) => a[0].tag[0] - b[0].tag[0])
 			if(children.length == nchildren.length && children.length > 1) {
 				clearNodes(pr[0].node,pr[0].node.children)
 				nchildren.forEach(el => {
-					el['iterated'] = true
 					if(el[0].fdata)	{
 						for(let idx = 0;idx < el[0].fdata[1];idx++){
 							const node = el[0].node.cloneNode(true)
