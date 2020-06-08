@@ -11,7 +11,6 @@ export function handler (render) {
 			if(Array.isArray(val)){
 				target[prop] = proxy(target[prop], handler(render))
 			}
-
 	  	render.update()
 	  	render.loop()
 

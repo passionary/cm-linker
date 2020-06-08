@@ -12,12 +12,10 @@ function find (id) {
 
 export default function linker (){
 	if(this.pointer <= 0) this.crtag = ''
-	if(this.pointer >= this.entities.length || this.nodes.length == this.ecount) {
+	if(this.nodes.length == this.ecount || this.pointer >= this.entities.length) {
 		return
 	}
-
 	const entity = this.entities[this.pointer]
-
 	let attrs
 	let cls
 	let events
@@ -41,7 +39,7 @@ export default function linker (){
 		const forExp = expr[0]
 		const [key,data] = [forExp.split(' ')[0],forExp.split(' ')[2]]
 		const lif = expr2[0]
-		id = this.template.slice(this.nexts[this.crtag.id-1],this.nexts[this.crtag.id])
+		id = this.template.slice(entity.index,end)
 		.match(new RegExp(this.rules.id))
 		obj = {
 			tag:[entity.index,entity[0]],

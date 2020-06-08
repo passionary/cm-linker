@@ -36,10 +36,9 @@
 	var some = GlobalApi.register('#app', {
 		cname:'test',
 		template:`
-<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>!!!</p><p>{{data2}}</p></p><button @click="modifyArr" l-for="test in tests">click</button>
-			`,		
+		<div l-for="test in news"><input type="text" /><p><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p><p><select><option>{{data3}}</option></select><ul><li><p><span><div>{{test}}</div></span></p></li></ul></p></div><div><main l-for="o in tests"><select name="" id="" l-for="b in tests"><option value=""><ul><li l-for="test in news"><p><em>{{test}}</em></p><p><span>{{b}}</span></p><p><b>{{o}}</b></p></li></ul></option></select></main></div><aside><nav><section><select name="" id=""><option value=""><ul><span l-for="k in tests"><p>{{k}}</p></span><li><p>{{data}}</p></li><nav l-for="d in other"><ul><li><p>{{d}}</p><p>{{d}}</p></li></ul></nav><p><div>hello!</div></p></ul></option></select></section></nav></aside>`,
 		data:{
-			data: true,
+			data: false,
 			data2:true,
 			data3:'anything-3',
 			tests:['test1','test2','test3!'],
@@ -55,15 +54,24 @@
 			}
 		}
 	})
-	GlobalApi.register('#after', {
+	let test = GlobalApi.register('#after', {
 		cname:'test',
 		template:
 		`
-<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>!!!</p><p>{{data2}}</p></p><button @click="modifyArr" l-for="test in tests">click</button><ul l-for="test in tests"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
+<div l-for="o in other"><p>{{o}}</p></div><ul l-for="new in news" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul>
+<p l-if="data2">
+<p>
+	<input type="text" value="test" />
+</p>
+	<p>
+		{{data2}}
+	</p>
+</p>
+<button @click="modifyArr" l-for="test in tests">{{data3}}</button><ul l-for="test in tests"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
 		`,
 		data:{
 			data: true,
-			data2:'',
+			data2:'some',
 			data3:'anything-3',
 			tests:['test1','test2','test3!'],
 			news:['news1','news2','news3'],
@@ -87,7 +95,7 @@
 		cname:'test',
 		template:
 		`
-<div l-for="o in other"><p>{{data3}}</p></div><a l-bind:href="data">{{data}}</a><ul l-for="new in tests" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>{{data2}}</p><p>{{data2}}</p></p><button @click="great">попробовать</button><ul l-for="test in tests" id="bottom"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
+<div l-for="o in other"><p>{{data3}}</p></div><a l-bind:href="data2">{{data2}}</a><ul l-for="new in tests" l-if="data2"><li><select name="" id=""><option value="">{{new}}</option></select></li></ul><p l-if="data2"><p>{{data2}}</p><p>{{data2}}</p></p><p><input @input="modifyArr" type="text" /></p><button @click="great">попробовать</button><ul l-for="test in tests" id="bottom"><li l-for="some in news"><p>{{some}}</p><p>{{test}}</p></li></ul>
 		`,
 		data:{
 			data: false,
@@ -110,13 +118,11 @@
 					}
 				}
 			},
-			modifyArr(){
-				if(this.data){
-					this.tests = [1,2,3]
-					this.data = false
-				}else{
-					this.tests = ['test1','test2','test3!']
-					this.data = true
+			modifyArr(e){
+				document.onkeydown = (event) => {
+					console.log(e.value)
+					if(event.key == 'Enter' && e.value == 'clear')
+						this.tests = []
 				}
 			}
 		}

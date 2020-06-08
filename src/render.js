@@ -10,14 +10,11 @@ function main(nodes,ctx)
 	return patch(makeOutput(nodes),ctx)
 }
 
-export const tags = ['p','div','span','select','button','option','form','h1','h2','h3','h4','h5','h6','ul','li']
+export const tags = ['p','a','div','span','select','b','strong','i','em','main','button','option','form','h1','h2','h3','h4','h5','h6','ul','li','section','article','nav','aside']
 export const stags = ['input','br','hr']
-
-export default class Render
-{
-	rules = {
-		tag: `(?<=[\\s]*\<)(${tags.join('|')})+(?=.*>)`,
-		ctag: `(?<=\/)(${tags.join('|')})+`,
+export const rules = {
+		tag: `(?<=[\\s]*\<)(${tags.join('\\b|\\b')})+(?=.*>)`,
+		ctag: `(?<=\/)(${tags.join('\\b|\\b')})+`,
 		id:'(?<=id=")[^"]+(?=")',
 		event: '(?<=@)([\\w]+)="([^"]+)(?=")',
 		inner: '(?<=\{\{\)[\\w]+(?=\}\})',
@@ -29,17 +26,17 @@ export default class Render
 		attr: /(href|name|value|type|action|placeholder)(?:\=\")([^\=\"]+)/,
 		innerText: '(?<=\>)[\\w\\s]*.+(?=[\\w\\s]*<)'
 	}
+export default class Render
+{
 	nodes = []
-	current = 0
 	crtag =  ''
 	pointer = 0
 	constructor(context){
+		this.rules = rules
 		this.cm = context
 		this.template = this.cm.template
 		this.data = this.cm.data
 		if(!this.template || !this.data) return
-		this.nexts = array(this.template.matchAll(/\n/g)).map(i => i.index + 1)
-		this.nexts.unshift(0)
 		this.opens = array(this.template.matchAll(new RegExp(this.rules.tag,'g')))
 		.filter(e => !/(input|hr|br)/.test(e[0])).map(e => {e.open = true; return e})
 		this.closes = array(this.template.matchAll(new RegExp(this.rules.ctag,'g')))
@@ -48,7 +45,7 @@ export default class Render
 		this.entities = this.opens.concat(this.closes,this.stags).sort((a,b) => a.index - b.index)
 		this.ecount = this.opens.length + this.stags.length
 		this.defineView()
-		console.log(this.nodes)
+		console.log(this.nodes.length,this.entities.length,this.stags.length,this.closes.length)
 		if(this.nodes.length != this.opens.length + this.stags.length || this.opens.length != this.closes.length) error('invalid html syntaxis')
 		const html = main(this.nodes,this.cm)
 		this.cm.el.parentNode.replaceChild(html,this.cm.el)
@@ -72,18 +69,10 @@ export default class Render
 	}
 	reset(){
 		this.pointer = 0
-		this.current = 0
 		this.crtag = ''
 		this.nodes = []
 	}
 	defineView(){
 		linker.call(this)
-	}
-	next(){
-		this.current = this.nexts[this.pointer++]
-	}
-	back(){
-		this.current = this.nexts[this.pointer - 2]
-		this.pointer--
 	}
 }
