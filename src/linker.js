@@ -48,7 +48,7 @@ export default function linker (){
 		if(id) obj.id = id[0]
 		if(cls) obj.classes = cls[0].split(' ').filter(e => e.length)
 		if(bindings.length) obj.bindings = bindings.map(e => ({key:e[1],value:e[2]}))
-		if(attrs.length){			
+		if(attrs.length){
 			obj.attrs = attrs.map(e => ({key:e[1],value:e[2]}))
 		}		
 		if(events.length){

@@ -11,7 +11,8 @@ function main(nodes,ctx)
 }
 
 export const tags = ['p','a','div','span','video','select','b','strong','i','em','main','header','label','button','option','form','h1','h2','h3','h4','h5','h6','footer','ul','li','section','article','nav','aside','textarea']
-export const stags = ['input','br','hr','img','source']
+export const stags = ['input','img','source']
+export const attrs = ['href','name','value','type','action','placeholder','src']
 export const rules = {
 		tag: `(?<=[\\s]*\<)(${tags.join('\\b|\\b')})+(?=.*>)`,
 		ctag: `(?<=\/)(${tags.join('\\b|\\b')})+`,
@@ -22,8 +23,8 @@ export const rules = {
 		lfor: '(?<=l-for=")[^"]+(?=")',
 		class: '(?<=class=")[^"]+(?=")',
 		lif: '(?<=l-if=")[^"]+(?=")',
-		stag:`(?<=[\\s]*\<)(?:${stags.join('|')})(?=.*\\s?\/>)`,
-		attr: /(href|name|value|type|action|placeholder)(?:\=\")([^\=\"]+)/,
+		stag:`(?<=[\\s]*\<)(?:${stags.join('\\b|\\b')})(?=.*\\s?\/?>)`,
+		attr: `(${attrs.join('\\b|\\b')})(?:\=\")([^\=\"]+)`,
 		innerText: '(?<=\>)[\\w\\s]*.+(?=[\\w\\s]*<)'
 	}
 export default class Render
