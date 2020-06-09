@@ -25,7 +25,7 @@ export default function patch(array,object)
 	const merge = buffer.reduce((p,e) => p.concat(e),[])
 	for(let buf of buffer){
 		let i = 0
-		while(true){			
+		while(true){
 			const ch = buf[i]
 			if(!ch) break
 			let pr = buf[i+1] && buf[i+1][0].tag[0] < ch[0].tag[0] && buf[i+1][0].etag[0] > ch[0].etag[0] ? buf[i+1] : buf.find(e => ch[1] - e[1] == 1 && ch[0].tag[0] > e[0].tag[0] && ch[0].etag[0] < e[0].etag[0])
