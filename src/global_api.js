@@ -1,6 +1,6 @@
 import Component from './index'
 
-export default class GlobalApi
+export default class Linker
 {
 	static register = (el = null,data = null) => {		
 		let cm = new Component( el, data )

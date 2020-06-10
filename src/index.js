@@ -1,11 +1,11 @@
 import Render from './render'
 import { count, name, array } from './helpers'
-import GlobalApi from './global_api'
+import Linker from './global_api'
 import { reactivate } from './reactivate'
 import { warn } from './warn'
 import { error } from './error'
 
-window.GlobalApi = GlobalApi
+window.Linker = Linker
 
 export default class Component
 {

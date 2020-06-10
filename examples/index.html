@@ -3,376 +3,112 @@
 <head>
 	<title>example</title>
 	<meta charset="utf-8">
+	<link rel="stylesheet" href="bootstrap.css">
+	<style>
+		td {
+			text-align: center;
+		}		
+		main {
+			width: 80%;
+			margin: 14px auto;
+		}
+		#cmd {
+			position: relative;
+			left:53%;
+			top:10px;
+		}
+		#panel {
+			height: 300px;
+			margin-bottom: 14px;
+			border-radius: 10px;
+		}
+		#panel p {
+			font-size: 2rem;
+			padding-top: 10%;		
+		}
+		#clear {
+			position: absolute;
+			right: 15px;
+			top: 14px;
+		}
+		#adder {
+			display: block;
+			margin: 0 auto;
+		}
+	</style>
 </head>
 <body>	
 	<div id="main">		
 		<div id="app"></div>
-		<div class="middle"></div>
-		<div id="after"></div>
 	</div>
-	<div id="micro">
-		<div class="m-case-1"></div>
-		<div class="m-case-2"></div>
-		<div class="m-case-3"></div>
-		<div class="m-case-4"></div>
-		<div class="m-case-5"></div>
-	</div>
-	<!-- <script src="training-model.js"></script> -->
 <script type="text/javascript" src="../dist/bundle.js"></script>
-<script>
-		var some = GlobalApi.register('#app', {
-		cname:'test',
-		template:`
-		<div id="sw-content" class="container" l-for="t in tests">
-    <section id="header-section">
-        <div class="video-container hero-video-container" style="z-index: 2;">
-            <video autoplay="" muted="" loop="" id="myVideo" style="z-index: -1;">
-                <source/>
-            </video>
-        </div>
-        <div class="video-overlay-section col-sm-12 text-left container-fluid">
-            <div class="header-text col-sm-8 col-md-offset-1">
-                <div class="text home-header-base-text ">
-                    <h1 style="font-size: 32px;">Snapwire lets you quickly generate high-quality photos that are<br>
-                        <span class="word theme-yellow transition-state-end">from anywhere.</span>
-                        <span class="word theme-yellow transition-state-begin">cost-effective.</span>
-                        <span class="word theme-yellow transition-state-begin">on-brand.</span>
-                    </h1>
-                </div>
-                <h4 style="padding-top:40px" class="photo-header-h2 normal margin-bottom-big top-text-2 ">
-                    <br/>This is the future of custom content creation.
-                </h4>
-            </div>
-        </div>
-    </section>
-    <section id="press-section" class="intro-section  header-new-pluses">
-    <div id="section-press" style="background-color: black;">
-        <div class="container">
-            <div class="row">
-                <div class="home__logo-header">Trusted By</div>
-                <div class="col-md-12 text-center home__logo-content">
-                    <a href="/press" class="press-logo kimpton" l-for="link in links">{{link}}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </section>
-    <section id="custom-visuals" class="intro-section header-new-pluses">
-        <div class="photo-header margin-none ">
-            <div class="header-content header-overlay-both custom-visuals-block__slideshow-container">
-                <div id="custom-visuals-block__slides" class="custom-visuals-block__slides" l-for="test in tests">
-                    <div id="tell-a-story-video" style="height: 100%; width: 100%;z-index: 2;" class="unselected-slide">
-                        <div class="video-container">                            
-                            <h1>{{test}}</h1>
-                            <p>{{t}}</p>                            
-                        </div>
-                    </div>
-                    <div id="tell-a-story-library" class="unselected-slide">
-                        <img class="fill-container" src="https://images.snapwi.re/assets/img/homepage/stories.jpg">
-                    </div>
-                    <div id="tell-a-story-location" class="selected-slide" style="z-index: 2;">
-                        <img class="fill-container" src="https://images.snapwi.re/assets/img/homepage/location.jpg" style="z-index: -1;">
-                    </div>
-                    <div id="tell-a-story-product" class="unselected-slide">
-                        <img class="fill-container" src="https://images.snapwi.re/assets/img/homepage/product.jpg">
-                    </div>
-                </div>
-                <div class="container-fluid">
-                    <div class="header-message header-message-left" style="z-index: 10;position: relative;">
-                        <div id="custom-visuals-block" class="responsive-margin">
-                            <h2 style="margin-left: 0;">Custom visuals so good they <span class="theme-yellow">speak for themselves</span></h2>
-                            <h4 class="padding-top-10 " style="margin-left: 0;font-size: 18px;font-weight: bold;"><span class="custom-visuals-block__slide-menu" id="custom-visuals-block__slide-0">Tell a story through video</span></h4>
-                            <h4 class="padding-top-10 " style="margin-left: 0;font-size: 18px;font-weight: bold;"><span class="custom-visuals-block__slide-menu" id="custom-visuals-block__slide-1">Build a library of stories</span></h4>
-                            <h4 class="padding-top-10 " style="margin-left: 0;font-size: 18px;font-weight: bold;"><span class="custom-visuals-block__slide-menu selected-menu" id="custom-visuals-block__slide-2">Tell a story about a location</span></h4>
-                            <h4 class="padding-top-10 " style="margin-left: 0;font-size: 18px;font-weight: bold;"><span class="custom-visuals-block__slide-menu" id="custom-visuals-block__slide-3">Tell a story about a product</span></h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section id="section-launch-high-volume" class=" header-new-pluses">
-        <div class="photo-header margin-none" style="background-image: url('https://images.snapwi.re/assets/img/homepage/launch.png'); background-size: cover; background-position: center 20%;">
-            <div class="header-content header-overlay-both">
-                <div class="container-fluid">
-                    <div class="header-message header-message-right transition-state-begin">
-                        <div class="padding-top-10">
-                            <h2 style="margin-right: 0;">Launch a <span class="theme-yellow"> high-volume <br> production </span> from the comfort <br> of your laptop</h2>
-                        </div>
-                        <div class="padding-top-10">
-                            <h4 style="margin-right: 0;font-weight: bold;">Snap a single product or all 10,000 SKUs. <br> Snapwire is built for agility, enterprise scale, and<br> global reach.</h4>
-                        </div>
-                        <div class="padding-top-10">
-                            <h4 style="margin-right: 0;font-weight: bold;">Lightning fast</h4>
-                            <h4 style="margin-right: 0;font-weight: bold;">Cost-efficient</h4>
-                            <h4 style="margin-right: 0;font-weight: bold;">High volume</h4>
-                        </div>
-                        <div class="padding-top-10">
-                            <a class="btn btn-success btn-lg" href="/howitworks">See How It Works</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section id="home-new-first-under-screen" class="intro-section section-white header-new-pluses">
-        <div class="container">
-            <div class="new-home-section-content">
-                <div class="row">
-                    <h2 style="font-weight: bold;">Think of Snapwire as a <span class="sw-blue"> visual asset pipeline  <br> </span> for every situation</h2>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                        <i class="fas fa-2x fa-temperature-high"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">High-volume production</h4>
-                        <p class="normal home-body-text">Get tens of thousands of photos in weeks</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-map-marker-alt"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Localized visuals</h4>
-                        <p class="normal home-body-text">Capture neighborhoods, cities, buildings, or people.</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-rocket"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Product launch</h4>
-                        <p class="normal home-body-text">Support a launch with product and lifestyle shots</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-book"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Content library</h4>
-                        <p class="normal home-body-text">Build a wholly-owned repository of on-brand images</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-bullhorn"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Marketing campaigns</h4>
-                        <p class="normal home-body-text">Launch a campaign with photos that support your objectives</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-thumbs-up"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Social media</h4>
-                        <p class="normal home-body-text">Increase engagement with authentic lifestyle shots</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-mobile-alt"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text ">App overhaul</h4>
-                        <p class="normal home-body-text">Refresh your app with high-quality visuals that sell</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fab fa-2x fa-hotjar"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Rebrand</h4>
-                        <p class="normal home-body-text">Celebrate your new brand with brand new visuals</p>
-                    </div>
-                    <div class="col-sm-4 margin-bottom header-new-pluses-elem green-background-on-hover tile-pluses transition-state-begin">
-                        <div class="header-new-pluses-elem-glob sw-green">
-                            <i class="fa fa-2x fa-funnel-dollar"></i>
-                        </div>
-                        <h4 class="bold margin-bottom home-header-text">Ecommerce</h4>
-                        <p class="normal home-body-text">Scale high-quality photos while protecting your margins</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>       
-</div>
-		`,
-		data:{
-			data: false,
-			data2:true,
-			links:'qwertyqwerty',
-			data3:'anything-3',
-			tests:['test1','test2','test3!'],
-			news:['news1','news2','news3'],
-			other:['other1','other2']
-		},
-		methods:{
-			some(){
-				this.data2 = !this.data2
-			},
-			modifyArr(){
-				this.other.push('HELLO!!!!!!!')
-			}
-		}
-	})	
-	let test = GlobalApi.register('#after', {
-		cname:'test',
-		template:
-		`
-<div l-for="o in other">
-  <div class="bb-custom-wrapper">    
-  	<div class="top d-flex justify-content-between w-50">
-      <h1 class="text-center mt-3">Content</h1>
-      <a href="">edit book</a>
-    </div>
-    <div class="bkbl-wrp">
-	    <div class="bb-bookblock mx-auto">
-	      <div class="bb-item">        
-	        <p v-if="el[0]" class="content left-content">
-	          el[0].cont
-	        </p>
-	        <p class="page">el[0].page</p>
-	        <p class="content right-content">
-	          {{o}}
-	        </p>
-	        <p class="page2">el[1].page</p>
-	      </div>
-	    </div>
+<script type="text/javascript">
 
-    	<h1 class="text-center">No content</h1>
-    </div>
-    <nav>
-      <a id="bb-nav-first" href="#" class="bb-custom-icon bb-custom-icon-first">First page</a>
-      <a id="bb-nav-prev" href="#" class="bb-custom-icon bb-custom-icon-arrow-left">Previous</a>
-      <a id="bb-nav-next" href="#" class="bb-custom-icon bb-custom-icon-arrow-right">Next</a>
-      <a id="bb-nav-last" href="#" class="bb-custom-icon bb-custom-icon-last">Last page</a>
-    </nav>
-    <div>
-      {{o}}
-    </div>    
-  </div>
-  <form action="http://127.0.0.1:8000/api/request" method="post" class="form-group mx-auto mt-3" id="book-form">
-  	<p>{{o}}</p>
-    <input type="hidden" name="request[type]" value="book" />
-    <textarea name="request[message]" class="form-control" placeholder="message">
-    </textarea><br/>
-    <input type="text" name="request[author]" class="form-control" placeholder="author" /><br/>
-    <input type="hidden" name="request[email]" class="form-control" />
-    <input type="text" name="item[genre]" class="form-control" placeholder="genre" /><br/>
-    <input type="hidden" name="item[content]" />
-    <div>
-      <input type="hidden" name="item[name]" />
-      <input disabled="true" type="text" name="item[name]" class="form-control" placeholder="name" />
-    </div>
-    <input type="text" name="item[size]" class="form-control" placeholder="size" />
-    <input type="hidden" name="item[count_of_pages]" class="form-control" placeholder="count of pages" /><br/>
-    <input type="text" name="item[tags]" class="form-control" placeholder="tags" /><br/>
-    <input type="submit" class="btn btn-secondary" />
-  </form>
-</div>
-		`,
+	const app = Linker.register('#app', {
+		name: 'app component',
 		data:{
-			data: true,
-			data2:'some',
-			data3:'anything-3',
-			tests:['test1','test2','test3!'],
-			news:['news1','news2','news3'],
-			other:['other1','other2']
+			result: '123',
+			commandLine: [],
+			commands: []
 		},
-		methods:{
-			some(){
+		template: `
+			<main>
+				<h1 class="text-center mb-4">Command Panel</h1>
+				<div class="bg-secondary" id="panel">
+	
+					<p class="text-center">{{result}}</p>
+
+				</div>
+				<input type="text" @keydown="execute" placeholder="command" class="form-control" />
+				<br />
+				<div class="d-flex justify-content-between">
+					<div class="w-75">
+						<div class="alert alert-success" l-if="show">eeeee! You won a surprise!</div>
+						<table class="table table-bordered">
+							<thead>
+								<th class="text-center">Command</th>
+							</thead>
+							<tbody>
+								<tr l-for="cmd in commandLine">
+									<td>{{cmd}}</td>
+								</tr>
+							</tbody
+						</table>
+						<button class="btn btn-success" id="adder">add to list</button>
+					</div>
+					<div class="panel w-25"><input @keydown="command" placeholder="command" type="text" class="form-control" /><br /><input @keydown="action" placeholder="function" type="text" class="form-control" /><button class="btn btn-success" id="cmd" @click="addCommand">add command</button></div>			
+				</div>							
+			</main>
+		`,
+		methods: {
+			command(e) {
+				if(e.key == 'Enter')
+				this.cmd = e.target.value
 			},
-			modifyArr(){
-				if(this.data){
-					this.tests = [1,2,3]
-					this.data = false
-				}else{
-					this.tests = ['test1','test2','test3!']
-					this.data = true
+			execute(e) {
+				if(e.key === 'Enter') {
+					const str = e.target.value
+					const arg = str.match(/(?<=\()[\d]+(?=\))/)
+					const c = str.match(/[\w]+(?=\()/)
+					const cmd = this.commands.find(cm => cm.cmd == c[0])
+					let body = 'x =' + arg[0] + '; ' + cmd.fnc
+					this.result = eval(body)
 				}
-			}
+			},
+			action(e) {
+				if(e.key == 'Enter') this.action = e.target.value
+			},
+			addCommand() {
+				const cmd = this.cmd.match(/[\w]+(?=:)/)
+				const desc = this.cmd.match(/(?<=:\s).+/)
+				if(cmd && desc)	{
+					this.commandLine.push(`${this.cmd}, function: ${this.action}`)
+					this.commands.push({cmd:cmd[0],fnc:this.action})
+				}
+			},
 		}
 	})
-	let data = GlobalApi.register('.middle', {
-		cname:'test',
-		template:
-		`
-		<nav class="navbar navbar-expand-md navbar-light shadow-sm topNav">
-      <div class="container">
-          <a class="navbar-brand" href="{{ url('/') }}">
-              Contentmaker
-          </a>                
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <!-- Left Side Of Navbar -->                    
-              <!-- Right Side Of Navbar -->
-              <ul class="navbar-nav ml-auto">
-                  <!-- Authentication Links -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('login') }}"><i class="far fa-user"></i></a>
-                </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                    </li>
-                <li class="nav-item dropdown">
-                    <a href="{{ route('logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    </form>
-                </li>
-              </ul>
-          </div>
-      </div>
-  </nav>
-  <main class="py-4">
-	  <div class="container">
-	    <main l-for="test in tests">      
-	        <h2 class="request-title-desc text-center mt-2">Requests</h2>
-	        <div id="app" class="d-flex justify-content-between flex-wrap w-75 mx-auto">
-            <a class="request-container text-center" href="{{route($request->type,['request' => $request->id,'id' => $request[$request->type] ?? 1])}}">
-                <div class="request" l-for="new in news">
-                    <h5>{{new}}</h5>
-                    <h6>{{substr($request->created_at,10,strlen($request->created_at))}}</h6>
-                    <p class="text-center">
-                        {{test}}
-                    </p>
-                </div>
-            </a>
-	        </div>
-	    </main>
-		</div>
-	</main>
-		`,
-		data:{
-			data: false,
-			data2:'some data-3',
-			data3:'anything-3',
-			tests:['test1','test2','test3!','test','ntest'],
-			news:['news1','news2','news3'],
-			other:['other1','other2']
-		},
-		methods:{
-			great(){
-				this.data = !this.data
-				if(this.data){
-					for(let i=10;i>=0;i--){
-						this.tests[i] = i
-					}
-				}else{
-					for(let i=0;i<=10;i++){
-						this.tests[i] = 10 - i
-					}
-				}
-			},
-			modifyArr(e){
-				document.onkeydown = (event) => {
-					console.log(e.value)
-					if(event.key == 'Enter' && e.value == 'clear')
-						this.tests = []
-				}
-			}
-		}
-	})	
 </script>
 </body>
 </html>

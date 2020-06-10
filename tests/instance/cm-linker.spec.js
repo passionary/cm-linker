@@ -1,5 +1,4 @@
 import Component from 'index'
-import GlobalApi from 'global_api'
 
 jest.mock('warn')
 jest.mock('error')

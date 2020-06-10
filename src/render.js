@@ -1,4 +1,4 @@
-import { array, count, name } from './helpers'
+import { array } from './helpers'
 import linker from './linker'
 import patch from './patch'
 import { error } from './error'
@@ -10,9 +10,9 @@ function main(nodes,ctx)
 	return patch(makeOutput(nodes),ctx)
 }
 
-export const tags = ['p','a','div','span','video','select','b','strong','i','em','main','header','label','button','option','form','h1','h2','h3','h4','h5','h6','footer','ul','li','section','article','nav','aside','textarea']
+export const tags = ['p','a','div','span','video','select','b','strong','i','em','main','header','label','button','option','form','h1','h2','h3','h4','h5','h6','footer','ul','li','section','article','nav','aside','textarea','table','tr','td','thead','tbody']
 export const stags = ['input','img','source']
-export const attrs = ['href','name','value','type','action','placeholder','src']
+export const attrs = ['href','name','value','type','action','placeholder','src','rowspan','colspan']
 export const rules = {
 		tag: `(?<=[\\s]*\<)(${tags.join('\\b|\\b')})+(?=.*>)`,
 		ctag: `(?<=\/)(${tags.join('\\b|\\b')})+`,
@@ -64,7 +64,7 @@ export default class Render
 				event,
 				handler
 			] = el.getAttribute('event').split(',')			
-			el.addEventListener(event,this.cm.methods[handler].bind(this.cm.proxy,el))
+			el.addEventListener(event,this.cm.methods[handler].bind(this.cm.proxy))
 		}		
 	}
 	reset(){
