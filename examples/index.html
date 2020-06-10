@@ -9,31 +9,105 @@
 			text-align: center;
 		}		
 		main {
-			width: 80%;
+			width: 76.4%;
 			margin: 14px auto;
 		}
+		.tick-action {
+			background: lightblue;		
+			position: fixed;
+			width: 120px;
+			min-height: 33px;
+			right:10px;
+			top:10%;
+		}
+		.tick-cmd {
+			position: fixed;
+			right:10px;
+			min-height: 33px;
+			top:20%;
+			background: lightgreen;
+		}
+		.app-description {
+			position: fixed;
+			left:5px;
+			top: 8%;
+			width: 132px;
+			color: #000;
+			font-size: 13px;
+			padding: 6px 0 0 6px;
+			transform: rotate(2deg);
+			background: #f1f1f1;
+		}
 		#cmd {
-			position: relative;
-			left:53%;
-			top:10px;
+			width: 52px;
+			height: 52px;
+			cursor:pointer;
+			animation: adder .5s ease-in infinite;
+			animation-direction: alternate-reverse;
+			border: none;
+			border-radius: 50%;
+			color: #fff;
+			background: #4db357;
+			position: absolute;
+			right:-62px;
+			top:90px;
 		}
 		#panel {
+			position: relative;
 			height: 300px;
 			margin-bottom: 14px;
-			border-radius: 10px;
+			background: #e6e6e6;
 		}
-		#panel p {
-			font-size: 2rem;
-			padding-top: 10%;		
+		#panel p.result {
+			font-size: 2.6rem;			
+			padding-top: 10%;
+			color: #6e8ab0;
+		}		
+		.result span {
+			border-bottom: 1px solid #7e97b9;
 		}
 		#clear {
 			position: absolute;
 			right: 15px;
 			top: 14px;
 		}
+		.label {
+			position: absolute;
+			top:18px;
+			text-transform: uppercase;
+			font-size: 13px;
+			border-bottom: 1px solid #000;
+			right: 18px;
+		}
+		.command-input {
+			margin-top: 35px;
+		}
+		.control {
+			margin-top: 10px;
+		}
+		.panel-container {
+			width: 66%;
+		}
+		.panel {
+			position: relative;
+		}
 		#adder {
 			display: block;
 			margin: 0 auto;
+		}
+		@keyframes adder {
+			from {
+				-webkit-transform: scale(1,1);
+				-ms-transform: scale(1,1);
+				-o-transform: scale(1,1);
+				transform: scale(1,1);
+			}
+			to {
+				-webkit-transform: scale(1.05,1.05);
+				-ms-transform: scale(1.05,1.05);
+				-o-transform: scale(1.05,1.05);
+				transform: scale(1.05,1.05);
+			}
 		}
 	</style>
 </head>
@@ -43,30 +117,50 @@
 	</div>
 <script type="text/javascript" src="../dist/bundle.js"></script>
 <script type="text/javascript">
-
+	let cid = 0
 	const app = Linker.register('#app', {
 		name: 'app component',
 		data:{
-			result: '123',
+			result: '0',
+			showA: false,
+			showC: false,
 			commandLine: [],
+			action:'',
+			error: '',
+			cmd:'',
 			commands: []
 		},
 		template: `
 			<main>
-				<h1 class="text-center mb-4">Command Panel</h1>
-				<div class="bg-secondary" id="panel">
-	
-					<p class="text-center">{{result}}</p>
-
+				<div class="app-description">
+					<p>
+						This is application for
+						emulate console or command line
+						interface.
+					</p>
+					<p>
+						Interface:
+					</p>
+					<p>-You should add a command with right-hand inputs</p>
+					<p>-Then you may see your added command on table</p>
+					<p>-And then in input(biggest) you may enter commant and sent "x" argument</p>
+					<p>-On the panel outputing your result</p>
 				</div>
-				<input type="text" @keydown="execute" placeholder="command" class="form-control" />
+				<div class="alert alert-danger" l-if="error">{{error}}</div>
+				<div class="tick-action" l-if="showA"><span>Action: </span><span>{{action}}</span></div>
+				<div class="tick-cmd" l-if="showC"><span>Command: </span><span>{{cmd}}</span></div>
+				<h1 class="text-left h4 mb-4">Command Panel</h1>
+				<div id="panel">
+					<p class="label">Result</p>
+					<p class="text-center result"><span>{{result}}</span></p>
+				</div>
+				<input type="text" @keydown="execute" placeholder="command" class="form-control command-input" />
 				<br />
-				<div class="d-flex justify-content-between">
-					<div class="w-75">
-						<div class="alert alert-success" l-if="show">eeeee! You won a surprise!</div>
+				<div class="d-flex justify-content-between control">
+					<div class="panel-container">
 						<table class="table table-bordered">
 							<thead>
-								<th class="text-center">Command</th>
+								<th class="text-center">Commands</th>
 							</thead>
 							<tbody>
 								<tr l-for="cmd in commandLine">
@@ -74,41 +168,83 @@
 								</tr>
 							</tbody
 						</table>
-						<button class="btn btn-success" id="adder">add to list</button>
 					</div>
-					<div class="panel w-25"><input @keydown="command" placeholder="command" type="text" class="form-control" /><br /><input @keydown="action" placeholder="function" type="text" class="form-control" /><button class="btn btn-success" id="cmd" @click="addCommand">add command</button></div>			
+					<div class="panel w-25"><input @keydown="command" placeholder="command" type="text" class="form-control mt-2" /><br /><input @keydown="action" placeholder="function" type="text" class="form-control mt-3" /><button class="add-command" id="cmd" @click="addCommand">add</button></div>
 				</div>							
 			</main>
 		`,
 		methods: {
 			command(e) {
-				if(e.key == 'Enter')
-				this.cmd = e.target.value
+				if(e.key == 'Enter'){
+					const cmd = e.target.value.match(/[\w]+(?=:)/)
+					const desc = e.target.value.match(/(?<=:\s?).+/)
+					if(!cmd && !desc) {
+						this.error = 'invalid command'
+						return
+					}
+					this.error = ''
+					this.cmd = e.target.value
+					this.showC = true
+					setTimeout(() => {
+						this.showC = false
+					},2000)
+				}
 			},
 			execute(e) {
-				if(e.key === 'Enter') {
+				if(e.keyCode == 38) {
+					cid--
+					if(cid <= 0)	cid = 0
+					e.target.value = this.commands[cid] ? this.commands[cid].cmd : '-'
+				}else if(e.keyCode == 40) {
+					cid++
+					if(cid >= this.commands.length - 1) cid = this.commands.length - 1
+					e.target.value = this.commands[cid] ? this.commands[cid].cmd : '-'
+				}else if(e.key === 'Enter') {
 					const str = e.target.value
 					const arg = str.match(/(?<=\()[\d]+(?=\))/)
 					const c = str.match(/[\w]+(?=\()/)
+					if(!c) {
+						this.error = 'no argument or invalid string'
+						return
+					}
 					const cmd = this.commands.find(cm => cm.cmd == c[0])
+					if(!arg || !arg[0]) {
+						this.error = 'invalid argument for command'
+						return
+					}
+					if(!cmd) {
+					 this.error = 'no such command'
+					 return
+					}
+					this.error = ''
+					console.log(arg)
 					let body = 'x =' + arg[0] + '; ' + cmd.fnc
 					this.result = eval(body)
 				}
 			},
 			action(e) {
-				if(e.key == 'Enter') this.action = e.target.value
+				if(e.key == 'Enter') {
+					this.action = e.target.value
+					this.showA = true
+					setTimeout(() => {
+						this.showA = false
+					},2000)
+				}
 			},
 			addCommand() {
 				const cmd = this.cmd.match(/[\w]+(?=:)/)
-				const desc = this.cmd.match(/(?<=:\s).+/)
-				if(cmd && desc)	{
+				const desc = this.cmd.match(/(?<=:\s?).+/)
+				if(cmd && desc && this.action && this.cmd 
+					&& !this.commandLine.includes(`${this.cmd}, function: ${this.action}`)
+					&& !this.commands.includes({cmd:cmd[0],fnc:this.action})){
 					this.commandLine.push(`${this.cmd}, function: ${this.action}`)
 					this.commands.push({cmd:cmd[0],fnc:this.action})
+					this.action = ''
+					this.cmd = ''
 				}
 			},
 		}
 	})
-
 </script>
 </body>
 </html>
