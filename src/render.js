@@ -10,7 +10,7 @@ function main(nodes,ctx)
 	return patch(makeOutput(nodes),ctx)
 }
 
-export const tags = ['p','a','div','span','video','select','b','strong','i','em','main','header','label','button','option','form','h1','h2','h3','h4','h5','h6','footer','ul','li','section','article','nav','aside','textarea','table','tr','td','thead','tbody']
+export const tags = ['p','a','div','span','video','select','b','strong','i','em','main','header','label','button','option','form','h1','h2','h3','h4','h5','h6','footer','ul','li','section','article','nav','aside','textarea','table','tr','td','thead','tbody','th']
 export const stags = ['input','img','source']
 export const attrs = ['href','name','value','type','action','placeholder','src','rowspan','colspan']
 export const rules = {

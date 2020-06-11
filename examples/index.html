@@ -3,62 +3,64 @@
 <head>
 	<title>example</title>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="bootstrap.css">
+	<link rel="stylesheet" href="materialize/css/materialize.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 	<style>
 		td {
 			text-align: center;
 		}		
 		main {
-			width: 76.4%;
-			margin: 14px auto;
+			position: relative;
+			width: 82.4%;
+			margin-left: 3%;
+		}
+		.error {
+			text-align: center;
+			font-size: 16px;
+			opacity: 0.8;
 		}
 		.tick-action {
-			background: lightblue;		
+			color: #fff;
 			position: fixed;
-			width: 120px;
-			min-height: 33px;
 			right:10px;
-			top:10%;
+			padding: 15px 15px 15px 15px;
+			min-height: 33px;
+			top:20%;			
+		}
+		#cmd {
+			margin-top: 10px;
 		}
 		.tick-cmd {
 			position: fixed;
-			right:10px;
 			min-height: 33px;
-			top:20%;
-			background: lightgreen;
+			padding: 10px 10px 10px 10px;
+			color: #fff;
+			right:10px;
+			top:10%;
 		}
 		.app-description {
 			position: fixed;
-			left:5px;
-			top: 8%;
-			width: 132px;
+			right:5px;
+			top: 14%;
+			width: 142px;
 			color: #000;
 			font-size: 13px;
+			opacity: 0.7;
 			padding: 6px 0 0 6px;
-			transform: rotate(2deg);
 			background: #f1f1f1;
-		}
-		#cmd {
-			width: 52px;
-			height: 52px;
-			cursor:pointer;
-			animation: adder .5s ease-in infinite;
-			animation-direction: alternate-reverse;
-			border: none;
-			border-radius: 50%;
-			color: #fff;
-			background: #4db357;
-			position: absolute;
-			right:-62px;
-			top:90px;
-		}
+		}		
 		#panel {
 			position: relative;
 			height: 300px;
+			width: 65%;
 			margin-bottom: 14px;
 			background: #e6e6e6;
 		}
+		.panel {
+			 width: 30%;
+		}
 		#panel p.result {
+			text-align: center;
 			font-size: 2.6rem;			
 			padding-top: 10%;
 			color: #6e8ab0;
@@ -66,10 +68,26 @@
 		.result span {
 			border-bottom: 1px solid #7e97b9;
 		}
-		#clear {
+		.panel-container {
+			display: -webkit-flex;
+			display: -moz-flex;
+			display: -ms-flex;
+			display: -o-flex;
+			display: flex;
+			justify-content: space-between;
+		}
+		.clear {
 			position: absolute;
-			right: 15px;
-			top: 14px;
+			right:0;
+		}
+		.cmd-title {
+			margin-top: 2rem;
+			font-size: 21px;
+		}
+		.logo {
+			margin-left: 11px;
+			width: 21px;
+			margin-top: -12px;
 		}
 		.label {
 			position: absolute;
@@ -84,10 +102,7 @@
 		}
 		.control {
 			margin-top: 10px;
-		}
-		.panel-container {
-			width: 66%;
-		}
+		}		
 		.panel {
 			position: relative;
 		}
@@ -126,6 +141,7 @@
 			showC: false,
 			commandLine: [],
 			action:'',
+			nocmd: true,
 			error: '',
 			cmd:'',
 			commands: []
@@ -146,31 +162,38 @@
 					<p>-And then in input(biggest) you may enter commant and sent "x" argument</p>
 					<p>-On the panel outputing your result</p>
 				</div>
-				<div class="alert alert-danger" l-if="error">{{error}}</div>
-				<div class="tick-action" l-if="showA"><span>Action: </span><span>{{action}}</span></div>
-				<div class="tick-cmd" l-if="showC"><span>Command: </span><span>{{cmd}}</span></div>
-				<h1 class="text-left h4 mb-4">Command Panel</h1>
-				<div id="panel">
-					<p class="label">Result</p>
-					<p class="text-center result"><span>{{result}}</span></p>
+				<div class="materialize-red error" l-if="error">{{error}}</div>
+				<div class="cyan tick-cmd" l-if="showC"><span>Command: </span><span>{{cmd}}</span></div>
+				<div class="lime tick-action" l-if="showA"><span>Action: </span><span>{{action}}</span></div>
+				<h1 class="cmd-title text-left h4 mb-5">
+				<span>Command Panel</span>
+				<img src="icons8-console-40.png" class="logo" alt="" />
+				</h1>
+				<div class="panel-container">
+					<div id="panel">
+						<p class="label">Result</p>
+						<p class="result"><span>{{result}}</span></p>
+					</div>
+					<div class="panel"><input @keydown="command" placeholder="command" type="text" class="form-control mt-2" /><br><input @keydown="action" placeholder="function" type="text" class="form-control mt-3" /><button class="btn" id="cmd" @click="addCommand">add</button>
+					</div>
 				</div>
+				
 				<input type="text" @keydown="execute" placeholder="command" class="form-control command-input" />
 				<br />
-				<div class="d-flex justify-content-between control">
-					<div class="panel-container">
-						<table class="table table-bordered">
-							<thead>
-								<th class="text-center">Commands</th>
-							</thead>
-							<tbody>
-								<tr l-for="cmd in commandLine">
-									<td>{{cmd}}</td>
-								</tr>
-							</tbody
-						</table>
-					</div>
-					<div class="panel w-25"><input @keydown="command" placeholder="command" type="text" class="form-control mt-2" /><br /><input @keydown="action" placeholder="function" type="text" class="form-control mt-3" /><button class="add-command" id="cmd" @click="addCommand">add</button></div>
-				</div>							
+				<button class="btn clear" @click="clear">clear</button>
+				<div>					
+					<table class="table table-bordered">
+						<thead>
+							<th class="text-center">Commands</th>
+						</thead>
+						<tbody>
+							<tr l-if="nocmd"><td>no commands</td></tr>
+							<tr l-for="cmd in commandLine">
+								<td>{{cmd}}</td>
+							</tr>
+						</tbody
+					</table>
+				</div>
 			</main>
 		`,
 		methods: {
@@ -189,6 +212,10 @@
 						this.showC = false
 					},2000)
 				}
+			},
+			clear() {
+				this.commands.length = 0
+				this.commandLine.length = 0
 			},
 			execute(e) {
 				if(e.keyCode == 38) {
@@ -241,6 +268,7 @@
 					this.commands.push({cmd:cmd[0],fnc:this.action})
 					this.action = ''
 					this.cmd = ''
+					this.nocmd = false
 				}
 			},
 		}
