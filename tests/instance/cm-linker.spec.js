@@ -1,10 +1,10 @@
-import Component from 'index'
+import Component from 'instance/index'
 
-jest.mock('warn')
-jest.mock('error')
+jest.mock('util/warn')
+jest.mock('util/error')
 
-import { warn } from 'warn'
-import { error } from 'error'
+import { warn } from 'util/warn'
+import { error } from 'util/error'
 
 describe('basic successfully cases of component instance creating ', () => {
 	beforeEach(() => {

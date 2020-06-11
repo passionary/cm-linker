@@ -1,5 +1,5 @@
-import linker from 'linker'
-import { tags, stags, rules } from 'render'
+import linker from 'linker/index'
+import { tags, stags, rules } from 'render/index'
 
 describe('linker function testing', () => {
 	let obj

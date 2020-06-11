@@ -1,7 +1,7 @@
-import patch from 'patch'
-import linker from 'linker'
-import { makeOutput } from 'util.js'
-import { tags, stags, rules } from 'render'
+import patch from 'patch/index'
+import linker from 'linker/index'
+import { makeOutput } from 'util/index'
+import { tags, stags, rules } from 'render/index'
 
 describe('elementary case testing', () => {
 	let obj

@@ -1,5 +1,5 @@
-import { proxy } from './proxy'
-import { handler } from './handler'
+import { proxy } from '../proxy/index'
+import { handler } from '../util/handler'
 
 export function reactivate (render){
 	for(let key in render.data){

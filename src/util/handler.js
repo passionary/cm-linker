@@ -1,4 +1,4 @@
-import { proxy } from './proxy'
+import { proxy } from '../proxy/index'
 
 export function handler (render) {
 	return {

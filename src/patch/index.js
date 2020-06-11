@@ -1,4 +1,4 @@
-import helpers, { array } from './helpers'
+import helpers, { array } from '../util/helpers'
 
 const clearNodes = (p,nodes) => array(nodes).forEach(e => p.removeChild(e))
 

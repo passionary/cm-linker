@@ -1,4 +1,4 @@
-import { proxy } from 'proxy'
+import { proxy } from 'proxy/index'
 
 jest.isolateModules(() => {
 	describe('simple proxy jobs', () => {
@@ -43,9 +43,9 @@ jest.isolateModules(() => {
 })
 
 jest.isolateModules(() => {
-	const Component = require('index').default
-	const Render = require('render').default
-	const handler = require('handler').handler
+	const Component = require('instance/index').default
+	const Render = require('render/index').default
+	const handler = require('util/handler').handler
 
 	document.body.innerHTML = '<div><div id="primary"><button event="click,some"></button></div></div>'	
 
@@ -78,7 +78,7 @@ jest.isolateModules(() => {
 })
 
 jest.isolateModules(() => {
-	const Component = require('index').default
+	const Component = require('instance/index').default
 	describe('some', () => {
 		let obj
 		beforeEach(() => {
@@ -131,9 +131,9 @@ jest.isolateModules(() => {
 
 jest.isolateModules(() => {
 	jest.resetModules()
-	const Component = require('index').default
-	jest.mock('proxy')
-	const proxy = require('proxy').proxy
+	const Component = require('instance/index').default
+	jest.mock('proxy/index')
+	const proxy = require('proxy/index').proxy
 	let obj
 	beforeEach(() => {
 		proxy.mock.calls = []

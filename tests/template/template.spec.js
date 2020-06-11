@@ -1,9 +1,9 @@
-import Render from 'render'
-import Component from 'index'
+import Render from 'render/index'
+import Component from 'instance/index'
 
-jest.mock('error')
+jest.mock('util/error')
 
-import { error } from 'error'
+import { error } from 'util/error'
 
 
 describe('check valid of template string', () => {

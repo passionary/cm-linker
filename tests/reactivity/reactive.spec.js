@@ -1,9 +1,9 @@
-const Render = require('render').default
-const reactivate = require('reactivate').reactivate
-const Component = require('index').default
+import Render from 'render/index'
+import { reactivate } from 'reactiv/index'
+import Component from 'instance/index'
 
-jest.mock('proxy')
-const proxy = require('proxy').proxy
+jest.mock('proxy/index')
+const proxy = require('proxy/index').proxy
 
 describe('proxy cases into reactivate function', () => {
 	let obj

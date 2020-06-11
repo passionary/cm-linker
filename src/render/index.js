@@ -1,9 +1,9 @@
-import { array } from './helpers'
-import linker from './linker'
-import patch from './patch'
-import { error } from './error'
-import { reactivate } from './proxy'
-import { makeOutput } from './util'
+import { array } from '../util/helpers'
+import linker from '../linker/index'
+import patch from '../patch/index'
+import { error } from '../util/error'
+import { reactivate } from '../proxy/index'
+import { makeOutput } from '../util/index'
 
 function main(nodes,ctx)
 {

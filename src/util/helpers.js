@@ -1,4 +1,4 @@
-import counts from './counts'
+import counts from '../util/counts'
 
 export default {
 	create(tag){

@@ -1,5 +1,5 @@
-import { findInner } from './patch'
-import { array } from './helpers'
+import { findInner } from '../patch/index'
+import { array } from '../util/helpers'
 
 function find (id) {
 	let c
