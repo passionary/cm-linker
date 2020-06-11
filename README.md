@@ -18,6 +18,7 @@ Two parameters must be passed to the class method "register"
 First parameter is a selector. Second is a object that may contain objects for data, template and methods.
 
 *l-if directive:*
+```
 let some = Linker.register('#app', {
 	template:`
 		<div l-if="bool"></div>
@@ -26,8 +27,10 @@ let some = Linker.register('#app', {
 		bool: false
 	}		
 })
+```
 
 *l-for directive:*
+```
 let test = Linker.register('#app', {
 	template:
 	`
@@ -37,8 +40,10 @@ let test = Linker.register('#app', {
 		tests: [1,2,3]
 	}		
 })
+```
 
 *l-bind directive:*
+```
 let data = Linker.register('.app', {
 	template:
 	`
@@ -48,9 +53,10 @@ let data = Linker.register('.app', {
 		data: 'data',
 	}
 })
+```
 
 *methods initialisation and event binding*
-
+```
 let data = Linker.register('.app', {
 	template:
 	`
@@ -65,8 +71,8 @@ let data = Linker.register('.app', {
 		}
 	}
 })
+```
 
 ## Author
 
 (C) 2020 Aldiyar Amanbaev.
-
