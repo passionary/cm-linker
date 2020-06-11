@@ -20,56 +20,56 @@ First parameter is a selector. Second is a object that may contain objects for d
 *l-if directive:*
 ```
 let some = Linker.register('#app', {
-	template:`
-		<div l-if="bool"></div>
-	`,
-	data:{
-		bool: false
-	}		
+  template:`
+    <div l-if="bool"></div>
+  `,
+  data:{
+    bool: false
+  }		
 })
 ```
 
 *l-for directive:*
 ```
 let test = Linker.register('#app', {
-	template:
-	`
-		<div l-for="test in tests">{{test}}</div>
-	`,
-	data:{
-		tests: [1,2,3]
-	}		
+  template:
+`
+  <div l-for="test in tests">{{test}}</div>
+  `,
+  data:{
+    tests: [1,2,3]
+  }		
 })
 ```
 
 *l-bind directive:*
 ```
 let data = Linker.register('.app', {
-	template:
-	`
-	<input type="text" l-bind:value="data">
-	`,
-	data:{
-		data: 'data',
-	}
+  template:
+  `
+    <input type="text" l-bind:value="data">
+  `,
+  data:{
+    data: 'data',
+  }
 })
 ```
 
 *methods initialisation and event binding*
 ```
 let data = Linker.register('.app', {
-	template:
-	`
-	<button type="text" @click="handler">
-	`,
-	data:{
-		data: 'data',
-	},
-	methods: {
-		handler(e) {
-			this.data = 'new data'
-		}
-	}
+  template:
+  `
+    <button type="text" @click="handler">
+  `,
+  data:{
+    data: 'data',
+  },
+  methods: {
+    handler(e) {
+      this.data = 'new data'
+    }
+  }
 })
 ```
 
